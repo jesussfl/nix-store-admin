@@ -18,12 +18,12 @@ export async function populateOnFirstRun(config: VendureConfig) {
         bootstrap({
           ...config,
           importExportOptions: {
-            importAssetsDir: path.join(require.resolve("@vendure/create/assets/products.csv"), "../images"),
+            importAssetsDir: path.join(require.resolve("../products.csv"), "../images"),
           },
           dbConnectionOptions: { ...config.dbConnectionOptions, synchronize: true },
         }),
       require("../initial-data.json"),
-      require.resolve("@vendure/create/assets/products.csv")
+      require.resolve("../products.csv")
     )
       .then((app) => app.close())
       .catch((err) => {
