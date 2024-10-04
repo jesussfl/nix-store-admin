@@ -8,7 +8,7 @@ import { HardenPlugin } from "@vendure/harden-plugin";
 
 const IS_DEV = process.env.APP_ENV === "dev";
 const serverPort = +process.env.PORT || 3000;
-
+const serverHost = process.env.APP_HOST || "localhost";
 export const config: VendureConfig = {
   apiOptions: {
     port: +(process.env.PORT || 3000),
@@ -92,8 +92,9 @@ export const config: VendureConfig = {
     }),
     AdminUiPlugin.init({
       route: "admin",
-      port: serverPort + 2,
+      port: 3002,
       adminUiConfig: {
+        apiHost: serverHost,
         apiPort: serverPort,
       },
     }),
