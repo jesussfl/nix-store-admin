@@ -61,10 +61,10 @@ export const config: VendureConfig = {
   // need to be updated. See the "Migrations" section in README.md.
   customFields: {},
   plugins: [
-    HardenPlugin.init({
-      maxQueryComplexity: 650,
-      apiMode: IS_DEV ? "dev" : "prod",
-    }),
+    // HardenPlugin.init({
+    //   maxQueryComplexity: 650,
+    //   apiMode: IS_DEV ? "dev" : "prod",
+    // }),
     AssetServerPlugin.init({
       route: "assets",
       assetUploadDir: process.env.ASSET_UPLOAD_DIR || path.join(__dirname, "../static/assets"),
