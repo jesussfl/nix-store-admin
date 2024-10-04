@@ -11,7 +11,7 @@ import path from "path";
  */
 export async function populateOnFirstRun(config: VendureConfig) {
   const dbTablesAlreadyExist = await tablesExist(config);
-  if (dbTablesAlreadyExist) {
+  if (!dbTablesAlreadyExist) {
     console.log(`No Vendure tables found in DB. Populating database...`);
     return populate(
       () =>
