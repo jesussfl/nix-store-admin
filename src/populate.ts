@@ -24,7 +24,12 @@ export async function populateOnFirstRun(config: VendureConfig) {
         }),
       require("@vendure/create/assets/initial-data.json"),
       require.resolve("@vendure/create/assets/products.csv")
-    ).then((app) => app.close());
+    )
+      .then((app) => app.close())
+      .catch((err) => {
+        console.log(err);
+        process.exit(1);
+      });
   } else {
     return;
   }
