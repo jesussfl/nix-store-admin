@@ -11,7 +11,7 @@ const serverPort = +process.env.PORT || 3000;
 const serverHost = process.env.APP_HOST || "localhost";
 export const config: VendureConfig = {
   apiOptions: {
-    hostname: serverHost,
+    // hostname: serverHost,
     port: +(process.env.PORT || 3000),
     adminApiPath: "admin-api",
     shopApiPath: "shop-api",
