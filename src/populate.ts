@@ -22,7 +22,7 @@ export async function populateOnFirstRun(config: VendureConfig) {
           },
           dbConnectionOptions: { ...config.dbConnectionOptions, synchronize: true },
         }),
-      require("@vendure/create/assets/initial-data.json"),
+      require("../initial-data.json"),
       require.resolve("@vendure/create/assets/products.csv")
     )
       .then((app) => app.close())
