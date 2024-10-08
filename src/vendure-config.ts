@@ -74,88 +74,88 @@ export const config: VendureConfig = {
     //   maxQueryComplexity: 650,
     //   apiMode: IS_DEV ? "dev" : "prod",
     // }),
-    ElasticsearchPlugin.init({
-      // host: "https://nix-store-admin.onrender.com",
-      port: 9200,
-      indexSettings: {
-        index: {
-          max_result_window: 50000,
-        },
-        analysis: {
-          analyzer: {
-            custom_autocomplete_analyzer: {
-              tokenizer: "standard",
-              filter: ["lowercase", "ngram", "english_stop", "english_stemmer"],
-            },
-            custom_search_analyzer: {
-              tokenizer: "standard",
-              filter: ["lowercase", "english_stemmer"],
-            },
-          },
-          filter: {
-            ngram: {
-              type: "edge_ngram",
-              min_gram: 2,
-              max_gram: 12,
-            },
-            english_stop: {
-              type: "stop",
-              stopwords: "_english_", // Change to English stopwords
-            },
-            english_stemmer: {
-              type: "stemmer",
-              language: "english", // Change to English stemmer
-            },
-          },
-        },
-      },
-      indexMappingProperties: {
-        productName: {
-          type: "text",
-          analyzer: "custom_autocomplete_analyzer",
-          search_analyzer: "custom_search_analyzer",
-          fields: {
-            keyword: {
-              type: "keyword",
-              ignore_above: 256,
-            },
-          },
-        },
-        productVariantName: {
-          type: "text",
-          analyzer: "custom_autocomplete_analyzer",
-          search_analyzer: "custom_search_analyzer",
-          fields: {
-            keyword: {
-              type: "keyword",
-              ignore_above: 256,
-            },
-          },
-        },
-        sku: {
-          type: "text",
-          analyzer: "custom_autocomplete_analyzer",
-          search_analyzer: "custom_search_analyzer",
-          fields: {
-            keyword: {
-              type: "keyword",
-              ignore_above: 256,
-            },
-          },
-        },
-        description: {
-          type: "text",
-          analyzer: "custom_autocomplete_analyzer",
-          search_analyzer: "custom_search_analyzer",
-          fields: {
-            keyword: {
-              type: "keyword",
-              ignore_above: 256,
-            },
-          },
-        },
-      },
-    }),
+    // ElasticsearchPlugin.init({
+    //   host: "https://nix-store-admin.onrender.com",
+    //   port: 9200,
+    //   indexSettings: {
+    //     index: {
+    //       max_result_window: 50000,
+    //     },
+    //     analysis: {
+    //       analyzer: {
+    //         custom_autocomplete_analyzer: {
+    //           tokenizer: "standard",
+    //           filter: ["lowercase", "ngram", "english_stop", "english_stemmer"],
+    //         },
+    //         custom_search_analyzer: {
+    //           tokenizer: "standard",
+    //           filter: ["lowercase", "english_stemmer"],
+    //         },
+    //       },
+    //       filter: {
+    //         ngram: {
+    //           type: "edge_ngram",
+    //           min_gram: 2,
+    //           max_gram: 12,
+    //         },
+    //         english_stop: {
+    //           type: "stop",
+    //           stopwords: "_english_", // Change to English stopwords
+    //         },
+    //         english_stemmer: {
+    //           type: "stemmer",
+    //           language: "english", // Change to English stemmer
+    //         },
+    //       },
+    //     },
+    //   },
+    //   indexMappingProperties: {
+    //     productName: {
+    //       type: "text",
+    //       analyzer: "custom_autocomplete_analyzer",
+    //       search_analyzer: "custom_search_analyzer",
+    //       fields: {
+    //         keyword: {
+    //           type: "keyword",
+    //           ignore_above: 256,
+    //         },
+    //       },
+    //     },
+    //     productVariantName: {
+    //       type: "text",
+    //       analyzer: "custom_autocomplete_analyzer",
+    //       search_analyzer: "custom_search_analyzer",
+    //       fields: {
+    //         keyword: {
+    //           type: "keyword",
+    //           ignore_above: 256,
+    //         },
+    //       },
+    //     },
+    //     sku: {
+    //       type: "text",
+    //       analyzer: "custom_autocomplete_analyzer",
+    //       search_analyzer: "custom_search_analyzer",
+    //       fields: {
+    //         keyword: {
+    //           type: "keyword",
+    //           ignore_above: 256,
+    //         },
+    //       },
+    //     },
+    //     description: {
+    //       type: "text",
+    //       analyzer: "custom_autocomplete_analyzer",
+    //       search_analyzer: "custom_search_analyzer",
+    //       fields: {
+    //         keyword: {
+    //           type: "keyword",
+    //           ignore_above: 256,
+    //         },
+    //       },
+    //     },
+    //   },
+    // }),
     AssetServerPlugin.init({
       route: "assets",
       assetUploadDir: process.env.ASSET_UPLOAD_DIR || path.join(__dirname, "../static/assets"),
@@ -165,7 +165,7 @@ export const config: VendureConfig = {
       assetUrlPrefix: IS_DEV ? undefined : "https://www.my-shop.com/assets/",
     }),
     DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),
-    // DefaultSearchPlugin.init({ bufferUpdates: false, indexStockStatus: true }),
+    DefaultSearchPlugin.init({ bufferUpdates: false, indexStockStatus: true }),
     EmailPlugin.init({
       devMode: true,
       outputPath: path.join(__dirname, "../static/email/test-emails"),

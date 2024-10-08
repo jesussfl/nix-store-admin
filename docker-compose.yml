@@ -37,25 +37,25 @@ services:
     environment:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: vendure
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
-    container_name: elasticsearch-vendure
-    environment:
-      - discovery.type=single-node
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - esdata:/usr/share/elasticsearch/data
-    ports:
-      - 9200:9200
-    networks:
-      - esnet
-volumes:
-  esdata:
-    driver: local
-networks:
-  esnet:
+#   elasticsearch:
+#     image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
+#     container_name: elasticsearch-vendure
+#     environment:
+#       - discovery.type=single-node
+#       - bootstrap.memory_lock=true
+#       - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
+#     ulimits:
+#       memlock:
+#         soft: -1
+#         hard: -1
+#     volumes:
+#       - esdata:/usr/share/elasticsearch/data
+#     ports:
+#       - 9200:9200
+#     networks:
+#       - esnet
+# volumes:
+#   esdata:
+#     driver: local
+# networks:
+#   esnet:
