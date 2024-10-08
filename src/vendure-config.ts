@@ -75,7 +75,7 @@ export const config: VendureConfig = {
     //   apiMode: IS_DEV ? "dev" : "prod",
     // }),
     ElasticsearchPlugin.init({
-      host: "http://localhost",
+      host: serverHost || "http://localhost",
       port: 9200,
       indexSettings: {
         index: {
