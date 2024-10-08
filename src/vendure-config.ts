@@ -1,17 +1,19 @@
-import { dummyPaymentHandler, DefaultJobQueuePlugin, DefaultSearchPlugin, VendureConfig } from "@vendure/core";
+import { dummyPaymentHandler, DefaultJobQueuePlugin, DefaultSearchPlugin, VendureConfig, DefaultLogger, LogLevel } from "@vendure/core";
 import { defaultEmailHandlers, EmailPlugin, FileBasedTemplateLoader } from "@vendure/email-plugin";
 import { AssetServerPlugin } from "@vendure/asset-server-plugin";
 import { AdminUiPlugin } from "@vendure/admin-ui-plugin";
 import "dotenv/config";
 import path from "path";
 import { HardenPlugin } from "@vendure/harden-plugin";
+import { ElasticsearchPlugin } from "@vendure/elasticsearch-plugin";
 
 const IS_DEV = process.env.APP_ENV === "dev";
 const serverPort = +process.env.PORT || 3000;
-const serverHost = process.env.APP_HOST || "localhost";
+const serverHost = process.env.APP_HOST || "http://localhost";
 export const config: VendureConfig = {
   apiOptions: {
     // hostname: serverHost,
+
     port: +(process.env.PORT || 3000),
     adminApiPath: "admin-api",
     shopApiPath: "shop-api",
@@ -31,6 +33,7 @@ export const config: VendureConfig = {
         }
       : {}),
   },
+
   authOptions: {
     tokenMethod: ["bearer", "cookie"],
     superadminCredentials: {
@@ -41,8 +44,13 @@ export const config: VendureConfig = {
       secret: process.env.COOKIE_SECRET,
     },
   },
+  logger: new DefaultLogger({
+    level: LogLevel.Debug,
+  }),
+
   dbConnectionOptions: {
     type: "postgres",
+    logger: "debug",
     // See the README.md "Migrations" section for an explanation of
     // the `synchronize` and `migrations` options.
     synchronize: process.env.DB_SYNCHRONIZE === "true",
@@ -66,6 +74,88 @@ export const config: VendureConfig = {
     //   maxQueryComplexity: 650,
     //   apiMode: IS_DEV ? "dev" : "prod",
     // }),
+    ElasticsearchPlugin.init({
+      host: "http://localhost",
+      port: 9200,
+      indexSettings: {
+        index: {
+          max_result_window: 50000,
+        },
+        analysis: {
+          analyzer: {
+            custom_autocomplete_analyzer: {
+              tokenizer: "standard",
+              filter: ["lowercase", "ngram", "english_stop", "english_stemmer"],
+            },
+            custom_search_analyzer: {
+              tokenizer: "standard",
+              filter: ["lowercase", "english_stemmer"],
+            },
+          },
+          filter: {
+            ngram: {
+              type: "edge_ngram",
+              min_gram: 2,
+              max_gram: 12,
+            },
+            english_stop: {
+              type: "stop",
+              stopwords: "_english_", // Change to English stopwords
+            },
+            english_stemmer: {
+              type: "stemmer",
+              language: "english", // Change to English stemmer
+            },
+          },
+        },
+      },
+      indexMappingProperties: {
+        productName: {
+          type: "text",
+          analyzer: "custom_autocomplete_analyzer",
+          search_analyzer: "custom_search_analyzer",
+          fields: {
+            keyword: {
+              type: "keyword",
+              ignore_above: 256,
+            },
+          },
+        },
+        productVariantName: {
+          type: "text",
+          analyzer: "custom_autocomplete_analyzer",
+          search_analyzer: "custom_search_analyzer",
+          fields: {
+            keyword: {
+              type: "keyword",
+              ignore_above: 256,
+            },
+          },
+        },
+        sku: {
+          type: "text",
+          analyzer: "custom_autocomplete_analyzer",
+          search_analyzer: "custom_search_analyzer",
+          fields: {
+            keyword: {
+              type: "keyword",
+              ignore_above: 256,
+            },
+          },
+        },
+        description: {
+          type: "text",
+          analyzer: "custom_autocomplete_analyzer",
+          search_analyzer: "custom_search_analyzer",
+          fields: {
+            keyword: {
+              type: "keyword",
+              ignore_above: 256,
+            },
+          },
+        },
+      },
+    }),
     AssetServerPlugin.init({
       route: "assets",
       assetUploadDir: process.env.ASSET_UPLOAD_DIR || path.join(__dirname, "../static/assets"),
@@ -75,7 +165,7 @@ export const config: VendureConfig = {
       assetUrlPrefix: IS_DEV ? undefined : "https://www.my-shop.com/assets/",
     }),
     DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),
-    DefaultSearchPlugin.init({ bufferUpdates: false, indexStockStatus: true }),
+    // DefaultSearchPlugin.init({ bufferUpdates: false, indexStockStatus: true }),
     EmailPlugin.init({
       devMode: true,
       outputPath: path.join(__dirname, "../static/email/test-emails"),
@@ -93,11 +183,11 @@ export const config: VendureConfig = {
     }),
     AdminUiPlugin.init({
       route: "admin",
-      port: 3002,
-      //   adminUiConfig: {
-      //     apiHost: serverHost,
-      //     apiPort: serverPort,
-      //   },
+      port: serverPort + 2,
+      adminUiConfig: {
+        apiHost: serverHost,
+        apiPort: serverPort,
+      },
     }),
   ],
 };
