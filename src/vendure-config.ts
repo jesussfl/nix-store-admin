@@ -54,7 +54,7 @@ export const config: VendureConfig = {
       // sameSite: "none",
       // secure: true,
       // httpOnly: true,
-      path: "http://172.16.0.49:3001",
+      // path: "http://172.16.0.49:3001",
       // domain: "http://172.16.0.49:3001",
       secret: process.env.COOKIE_SECRET,
     },
