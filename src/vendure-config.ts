@@ -1,4 +1,12 @@
-import { dummyPaymentHandler, DefaultJobQueuePlugin, DefaultSearchPlugin, VendureConfig, DefaultLogger, LogLevel } from "@vendure/core";
+import {
+  dummyPaymentHandler,
+  DefaultJobQueuePlugin,
+  DefaultSearchPlugin,
+  VendureConfig,
+  DefaultLogger,
+  LogLevel,
+  defaultShippingCalculator,
+} from "@vendure/core";
 import { defaultEmailHandlers, EmailPlugin, FileBasedTemplateLoader } from "@vendure/email-plugin";
 import { AssetServerPlugin } from "@vendure/asset-server-plugin";
 import { AdminUiPlugin } from "@vendure/admin-ui-plugin";
@@ -6,6 +14,7 @@ import "dotenv/config";
 import path from "path";
 import { HardenPlugin } from "@vendure/harden-plugin";
 import { ElasticsearchPlugin } from "@vendure/elasticsearch-plugin";
+import { externalShippingCalculator } from "./shipping-methods/external-shipping-calculator";
 
 const IS_DEV = process.env.APP_ENV === "dev";
 const serverPort = +process.env.PORT || 3000;
@@ -42,6 +51,11 @@ export const config: VendureConfig = {
       password: process.env.SUPERADMIN_PASSWORD,
     },
     cookieOptions: {
+      // sameSite: "none",
+      // secure: true,
+      // httpOnly: true,
+      path: "http://172.16.0.49:3001",
+      // domain: "http://172.16.0.49:3001",
       secret: process.env.COOKIE_SECRET,
     },
   },
@@ -63,6 +77,9 @@ export const config: VendureConfig = {
     port: +process.env.DB_PORT,
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
+  },
+  shippingOptions: {
+    shippingCalculators: [defaultShippingCalculator, externalShippingCalculator],
   },
   paymentOptions: {
     paymentMethodHandlers: [dummyPaymentHandler],
@@ -185,10 +202,10 @@ export const config: VendureConfig = {
     AdminUiPlugin.init({
       route: "admin",
       port: serverPort + 2,
-      // adminUiConfig: {
-      //   apiHost: serverHost,
-      //   apiPort: serverPort,
-      // },
+      adminUiConfig: {
+        apiHost: serverHost,
+        apiPort: serverPort,
+      },
     }),
   ],
 };
