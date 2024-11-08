@@ -16,7 +16,7 @@ import path from "path";
 import { HardenPlugin } from "@vendure/harden-plugin";
 import { ElasticsearchPlugin } from "@vendure/elasticsearch-plugin";
 import { externalShippingCalculator } from "./shipping-methods/external-shipping-calculator";
-import { compileUiExtensions } from "@vendure/ui-devkit/compiler";
+import { compileUiExtensions, setBranding } from "@vendure/ui-devkit/compiler";
 const IS_DEV = process.env.APP_ENV === "dev";
 const serverPort = +process.env.PORT || 3000;
 const serverHost = process.env.APP_HOST || "http://localhost";
@@ -206,6 +206,13 @@ export const config: VendureConfig = {
       app: compileUiExtensions({
         outputPath: path.join(__dirname, "../admin-ui"),
         extensions: [
+          setBranding({
+            // The small logo appears in the top left of the screen
+            smallLogoPath: path.join(__dirname, "images/nix-logo-sm.png"),
+            // The large logo is used on the login page
+            largeLogoPath: path.join(__dirname, "images/nix-logo.png"),
+            faviconPath: path.join(__dirname, "images/favicon.ico"),
+          }),
           {
             translations: {
               es: path.join(__dirname, "translations/es.json"),
@@ -214,6 +221,9 @@ export const config: VendureConfig = {
         ],
       }),
       adminUiConfig: {
+        brand: "Nix Store",
+        // hideVendureBranding: true,
+        hideVersion: true,
         defaultLanguage: LanguageCode.es,
         availableLanguages: [LanguageCode.es, LanguageCode.en],
       },
