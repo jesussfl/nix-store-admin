@@ -223,6 +223,8 @@ export const config: VendureConfig = {
       }),
       adminUiConfig: {
         brand: "Nix Store",
+        apiPort: serverPort + 2,
+        apiHost: serverHost,
         // hideVendureBranding: true,
         hideVersion: true,
         defaultLanguage: LanguageCode.en,
