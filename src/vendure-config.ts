@@ -204,7 +204,7 @@ export const config: VendureConfig = {
       route: "admin",
       port: serverPort + 2,
       app: compileUiExtensions({
-        outputPath: path.join(__dirname, "./dist/admin-ui"),
+        outputPath: path.join(__dirname, "../admin-ui"),
         devMode: false,
         command: "yarn",
         // ngCompilerPath: path.join(__dirname, "./node_modules/.bin/ng"),
