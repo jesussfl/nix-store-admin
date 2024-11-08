@@ -23,7 +23,7 @@ const serverHost = process.env.APP_HOST || "http://localhost";
 export const config: VendureConfig = {
   apiOptions: {
     // hostname: serverHost,
-
+    hostname: serverHost,
     port: +(process.env.PORT || 3000),
     adminApiPath: "admin-api",
     shopApiPath: "shop-api",
@@ -223,8 +223,8 @@ export const config: VendureConfig = {
       }),
       adminUiConfig: {
         brand: "Nix Store",
-        apiPort: serverPort + 2,
-        apiHost: serverHost,
+        // apiPort: serverPort + 2,
+        // apiHost: serverHost,
         // hideVendureBranding: true,
         hideVersion: true,
         defaultLanguage: LanguageCode.en,
