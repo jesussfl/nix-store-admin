@@ -204,8 +204,10 @@ export const config: VendureConfig = {
       route: "admin",
       port: serverPort + 2,
       app: compileUiExtensions({
-        ngCompilerPath: path.join(__dirname, "./node_modules/.bin/ng"),
-        outputPath: path.join(__dirname, "../admin-ui"),
+        outputPath: path.join(__dirname, "./dist/admin-ui"),
+        devMode: false,
+        command: "yarn",
+        // ngCompilerPath: path.join(__dirname, "./node_modules/.bin/ng"),
         extensions: [
           setBranding({
             // The small logo appears in the top left of the screen

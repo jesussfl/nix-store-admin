@@ -2,7 +2,10 @@ import { compileUiExtensions, setBranding } from "@vendure/ui-devkit/compiler";
 import * as path from "path";
 
 compileUiExtensions({
-  outputPath: path.join(__dirname, "../admin-ui"),
+  outputPath: path.join(__dirname, "./dist/admin-ui"),
+  devMode: false,
+  command: "yarn",
+  //   ngCompilerPath: path.join(__dirname, "./node_modules/.bin/ng"),
   extensions: [
     setBranding({
       // The small logo appears in the top left of the screen
