@@ -204,7 +204,7 @@ export const config: VendureConfig = {
       route: "admin",
       port: serverPort + 2,
       app: compileUiExtensions({
-        ngCompilerPath: path.join(__dirname, "./node_modules/.bin/ng"),
+        // ngCompilerPath: path.join(__dirname, "./node_modules/.bin/ng"),
         outputPath: path.join(__dirname, "../admin-ui"),
         extensions: [
           setBranding({
@@ -214,19 +214,19 @@ export const config: VendureConfig = {
             largeLogoPath: path.join(__dirname, "../images/nix-logo.png"),
             faviconPath: path.join(__dirname, "../images/favicon.ico"),
           }),
-          // {
-          //   translations: {
-          //     es: path.join(__dirname, "translations/es.json"),
-          //   },
-          // },
+          {
+            translations: {
+              es: path.join(__dirname, "translations/es.json"),
+            },
+          },
         ],
       }),
       adminUiConfig: {
         brand: "Nix Store",
         // hideVendureBranding: true,
         hideVersion: true,
-        // defaultLanguage: LanguageCode.en,
-        // availableLanguages: [LanguageCode.es, LanguageCode.en],
+        defaultLanguage: LanguageCode.en,
+        availableLanguages: [LanguageCode.es, LanguageCode.en],
       },
     }),
   ],
