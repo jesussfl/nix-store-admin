@@ -6,10 +6,12 @@
     "dev:server": "ts-node ./src/index.ts",
     "dev:worker": "ts-node ./src/index-worker.ts",
     "dev": "concurrently npm:dev:*",
-    "build": "tsc",
     "start:server": "node ./dist/index.js",
     "start:worker": "node ./dist/index-worker.js",
-    "start": "concurrently npm:start:*"
+    "start": "concurrently npm:start:*",
+    "copy": "npx copyfiles -u 1 'admin-ui/dist/**/*' dist",
+    "build": "tsc && yarn copy",
+    "build:admin": "rimraf admin-ui && npx ts-node src/compile-admin-ui.ts"
   },
   "dependencies": {
     "@elastic/elasticsearch": "^8.15.0",
@@ -20,6 +22,7 @@
     "@vendure/email-plugin": "3.0.4",
     "@vendure/harden-plugin": "^3.0.4",
     "@vendure/ui-devkit": "^3.0.5",
+    "copyfiles": "^2.4.1",
     "dotenv": "16.4.5",
     "pg": "8.13.0"
   },
