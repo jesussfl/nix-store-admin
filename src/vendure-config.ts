@@ -204,6 +204,7 @@ export const config: VendureConfig = {
       route: "admin",
       port: serverPort + 2,
       app: compileUiExtensions({
+        ngCompilerPath: path.join(__dirname, "./node_modules/.bin/ng"),
         outputPath: path.join(__dirname, "../admin-ui"),
         extensions: [
           setBranding({
