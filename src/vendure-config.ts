@@ -214,19 +214,19 @@ export const config: VendureConfig = {
             largeLogoPath: path.join(__dirname, "../images/nix-logo.png"),
             faviconPath: path.join(__dirname, "../images/favicon.ico"),
           }),
-          {
-            translations: {
-              es: path.join(__dirname, "translations/es.json"),
-            },
-          },
+          // {
+          //   translations: {
+          //     es: path.join(__dirname, "translations/es.json"),
+          //   },
+          // },
         ],
       }),
       adminUiConfig: {
         brand: "Nix Store",
         // hideVendureBranding: true,
         hideVersion: true,
-        defaultLanguage: LanguageCode.es,
-        availableLanguages: [LanguageCode.es, LanguageCode.en],
+        // defaultLanguage: LanguageCode.en,
+        // availableLanguages: [LanguageCode.es, LanguageCode.en],
       },
     }),
   ],
