@@ -6,6 +6,7 @@ import {
   DefaultLogger,
   LogLevel,
   defaultShippingCalculator,
+  LanguageCode,
 } from "@vendure/core";
 import { defaultEmailHandlers, EmailPlugin, FileBasedTemplateLoader } from "@vendure/email-plugin";
 import { AssetServerPlugin } from "@vendure/asset-server-plugin";
@@ -15,7 +16,7 @@ import path from "path";
 import { HardenPlugin } from "@vendure/harden-plugin";
 import { ElasticsearchPlugin } from "@vendure/elasticsearch-plugin";
 import { externalShippingCalculator } from "./shipping-methods/external-shipping-calculator";
-
+import { compileUiExtensions } from "@vendure/ui-devkit/compiler";
 const IS_DEV = process.env.APP_ENV === "dev";
 const serverPort = +process.env.PORT || 3000;
 const serverHost = process.env.APP_HOST || "http://localhost";
@@ -202,10 +203,20 @@ export const config: VendureConfig = {
     AdminUiPlugin.init({
       route: "admin",
       port: serverPort + 2,
-      // adminUiConfig: {
-      //   apiHost: serverHost,
-      //   apiPort: serverPort,
-      // },
+      app: compileUiExtensions({
+        outputPath: path.join(__dirname, "../admin-ui"),
+        extensions: [
+          {
+            translations: {
+              es: path.join(__dirname, "translations/es.json"),
+            },
+          },
+        ],
+      }),
+      adminUiConfig: {
+        defaultLanguage: LanguageCode.es,
+        availableLanguages: [LanguageCode.es, LanguageCode.en],
+      },
     }),
   ],
 };
