@@ -13,10 +13,7 @@ import { AssetServerPlugin } from "@vendure/asset-server-plugin";
 import { AdminUiPlugin } from "@vendure/admin-ui-plugin";
 import "dotenv/config";
 import path from "path";
-import { HardenPlugin } from "@vendure/harden-plugin";
-import { ElasticsearchPlugin } from "@vendure/elasticsearch-plugin";
 import { externalShippingCalculator } from "./shipping-methods/external-shipping-calculator";
-import { compileUiExtensions, setBranding } from "@vendure/ui-devkit/compiler";
 const IS_DEV = process.env.APP_ENV === "dev";
 const serverPort = +process.env.PORT || 3000;
 const serverHost = process.env.APP_HOST || "http://localhost";
@@ -52,11 +49,6 @@ export const config: VendureConfig = {
       password: process.env.SUPERADMIN_PASSWORD,
     },
     cookieOptions: {
-      // sameSite: "none",
-      // secure: true,
-      // httpOnly: true,
-      // path: "http://172.16.0.49:3001",
-      // domain: "http://172.16.0.49:3001",
       secret: process.env.COOKIE_SECRET,
     },
   },
@@ -205,30 +197,10 @@ export const config: VendureConfig = {
       port: serverPort + 2,
       app: {
         path: path.join(__dirname, "../admin-ui/dist"),
-        // outputPath: path.join(__dirname, "../admin-ui"),
-        // devMode: false,
-        // command: "yarn",
-        // // ngCompilerPath: path.join(__dirname, "./node_modules/.bin/ng"),
-        // extensions: [
-        //   setBranding({
-        //     // The small logo appears in the top left of the screen
-        //     smallLogoPath: path.join(__dirname, "../images/nix-logo-sm.png"),
-        //     // The large logo is used on the login page
-        //     largeLogoPath: path.join(__dirname, "../images/nix-logo.png"),
-        //     faviconPath: path.join(__dirname, "../images/favicon.ico"),
-        //   }),
-        //   {
-        //     translations: {
-        //       es: path.join(__dirname, "translations/es.json"),
-        //     },
-        //   },
-        // ],
       },
       adminUiConfig: {
         brand: "Nix Store",
-        // apiPort: serverPort + 2,
-        // apiHost: serverHost,
-        // hideVendureBranding: true,
+
         hideVersion: true,
         defaultLanguage: LanguageCode.en,
         availableLanguages: [LanguageCode.es, LanguageCode.en],
