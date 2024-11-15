@@ -7,6 +7,8 @@ import {
   LogLevel,
   defaultShippingCalculator,
   LanguageCode,
+  defaultOrderProcess,
+  defaultPaymentProcess,
 } from "@vendure/core";
 import { defaultEmailHandlers, EmailPlugin, FileBasedTemplateLoader } from "@vendure/email-plugin";
 import { AssetServerPlugin } from "@vendure/asset-server-plugin";
@@ -14,6 +16,11 @@ import { AdminUiPlugin } from "@vendure/admin-ui-plugin";
 import "dotenv/config";
 import path from "path";
 import { externalShippingCalculator } from "./shipping-methods/external-shipping-calculator";
+import { partialPaymentHandler } from "./plugins/partial-payment/partial-payment-handler";
+import { customOrderProcess } from "./plugins/partial-payment/order-process";
+import { MyOrderPlacedStrategy } from "./plugins/partial-payment/order-placed-strategy";
+import { customPaymentProcess } from "./plugins/partial-payment/payment-process";
+import { PartialPaymentPlugin } from "./plugins/partial-payment/partial-payment.plugin";
 const IS_DEV = process.env.APP_ENV === "dev";
 const serverPort = +process.env.PORT || 3000;
 const serverHost = process.env.APP_HOST || "http://localhost";
@@ -71,16 +78,24 @@ export const config: VendureConfig = {
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
   },
+
   shippingOptions: {
     shippingCalculators: [defaultShippingCalculator, externalShippingCalculator],
   },
+  orderOptions: {
+    process: [defaultOrderProcess, customOrderProcess],
+    orderPlacedStrategy: new MyOrderPlacedStrategy(),
+  },
+
   paymentOptions: {
-    paymentMethodHandlers: [dummyPaymentHandler],
+    process: [defaultPaymentProcess, customPaymentProcess],
+    paymentMethodHandlers: [dummyPaymentHandler, partialPaymentHandler],
   },
   // When adding or altering custom field definitions, the database will
   // need to be updated. See the "Migrations" section in README.md.
   customFields: {},
   plugins: [
+    PartialPaymentPlugin,
     // HardenPlugin.init({
     //   maxQueryComplexity: 650,
     //   apiMode: IS_DEV ? "dev" : "prod",
