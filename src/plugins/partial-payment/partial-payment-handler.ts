@@ -13,17 +13,18 @@ export const partialPaymentHandler = new PaymentMethodHandler({
   // Create initial partial payment
   createPayment: async (ctx, order, amount, args, metadata) => {
     const initialAmount = (order.total * args.initialPercentage) / 100;
-    if (metadata.totalPaid < initialAmount / 100) {
+    Logger.info(`monto: ${metadata.monto}`, loggerCtx);
+    if (metadata.monto < initialAmount / 100) {
       throw new Error(`Total paid must be at least ${initialAmount / 100}`);
     }
 
     Logger.info(`Initial partial payment of ${initialAmount} created`, loggerCtx);
 
     return {
-      amount: initialAmount,
+      amount: metadata.monto,
       state: "Validating",
-      transactionId: metadata.reference,
-      metadata: { initialPercentage: args.initialPercentage },
+      transactionId: metadata.referencia || metadata.email,
+      metadata: { ...metadata, initialPercentage: args.initialPercentage },
     };
   },
 

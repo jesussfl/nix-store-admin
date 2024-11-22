@@ -3,7 +3,7 @@ import { OrderProcess } from "@vendure/core";
 /**
  * Define new states "ValidatingPayment" and "PartiallyPaid", and set up the permitted transitions.
  */
-export const customOrderProcess: OrderProcess<"ValidatingPayment" | "PartiallyPaid"> = {
+export const customOrderProcess: OrderProcess<"ValidatingPayment" | "ReceivedForShipping"> = {
   transitions: {
     Created: {
       to: ["Cancelled", "Modifying"],
@@ -14,10 +14,18 @@ export const customOrderProcess: OrderProcess<"ValidatingPayment" | "PartiallyPa
       mergeStrategy: "replace",
     },
     ValidatingPayment: {
-      to: ["PartiallyPaid", "PaymentAuthorized", "PaymentSettled", "ArrangingAdditionalPayment", "Cancelled"],
+      to: ["PaymentSettled", "ArrangingAdditionalPayment", "Cancelled"],
     },
-    PartiallyPaid: {
-      to: ["PaymentAuthorized", "PaymentSettled", "ArrangingAdditionalPayment", "Cancelled"],
+
+    PaymentSettled: {
+      to: ["ReceivedForShipping", "ValidatingPayment", "ArrangingAdditionalPayment", "Cancelled"],
+      mergeStrategy: "replace",
+    },
+    ReceivedForShipping: {
+      to: ["PaymentSettled", "ArrangingAdditionalPayment", "Shipped", "PartiallyShipped", "Delivered", "PartiallyDelivered", "Cancelled"],
+    },
+    Delivered: {
+      to: ["Cancelled", "ReceivedForShipping"],
     },
   },
 };

@@ -213,8 +213,10 @@ export const config: VendureConfig = {
       app: {
         path: path.join(__dirname, "../admin-ui/dist"),
       },
+
       adminUiConfig: {
         brand: "Nix Store",
+        // hideVendureBranding: true,
 
         hideVersion: true,
         defaultLanguage: LanguageCode.en,

@@ -6,6 +6,6 @@ import { OrderPlacedStrategy, OrderState, RequestContext } from "@vendure/core";
  */
 export class MyOrderPlacedStrategy implements OrderPlacedStrategy {
   shouldSetAsPlaced(ctx: RequestContext, fromState: OrderState, toState: OrderState): boolean | Promise<boolean> {
-    return fromState === "AddingItems" && toState === ("ValidatingPayment" as any);
+    return toState === ("ValidatingPayment" as any) || toState === ("ReceivedForShipping" as any);
   }
 }
