@@ -1,14 +1,13 @@
 import { Args, Mutation, Resolver } from "@nestjs/graphql";
-import { Allow, Ctx, Permission, RequestContext, Transaction, OrderService, Logger } from "@vendure/core";
-import { Order } from "@vendure/core";
-
+import { Ctx, RequestContext, Transaction, OrderService, Logger } from "@vendure/core";
+import { MutationSetOrderShippingAddressArgs } from "@vendure/common/lib/generated-shop-types";
 @Resolver()
-export class OrderPaymentResolver {
+export class NationalShippingResolver {
   constructor(private orderService: OrderService) {}
 
   @Mutation()
   @Transaction()
-  async addPaymentToExistingOrder(@Ctx() ctx: RequestContext, @Args() args: { orderCode: string; paymentMethodCode: string; metadata: any }) {
+  async setCustomAddressToOrder(@Ctx() ctx: RequestContext, @Args() args: { input: MutationSetOrderShippingAddressArgs; orderCode: string; metadata: any }) {
     // Find the order by ID and check if it’s eligible for additional payments
     const order = await this.orderService.findOneByCode(ctx, args.orderCode);
     if (!order) {
@@ -18,15 +17,10 @@ export class OrderPaymentResolver {
     Logger.info(`Order with ID ${args.orderCode} found`, "PartialPaymentResolver");
     Logger.info(`${order.id}`, "PartialPaymentResolver");
 
+    // Calculate the remaining amount and validate the payment input
     const remainingAmount = order.totalWithTax - args.metadata.totalPaid;
     if (args.metadata.totalPaid < remainingAmount) {
       throw new Error(`Payment amount is less than remaining balance. Remaining balance: ${remainingAmount}`);
-    }
-
-    const is50PercentPaid = args.metadata.totalPaid >= (order.totalWithTax * 50) / 100;
-
-    if (!is50PercentPaid) {
-      throw new Error(`Payment amount is less than 50% of the total.`);
     }
 
     // Add the new payment to the order

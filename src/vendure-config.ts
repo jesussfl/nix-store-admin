@@ -21,6 +21,7 @@ import { customOrderProcess } from "./plugins/partial-payment/order-process";
 import { MyOrderPlacedStrategy } from "./plugins/partial-payment/order-placed-strategy";
 import { customPaymentProcess } from "./plugins/partial-payment/payment-process";
 import { PartialPaymentPlugin } from "./plugins/partial-payment/partial-payment.plugin";
+// import { NationalShippingPlugin } from "./plugins/national-shipping/national-shipping.plugin";
 const IS_DEV = process.env.APP_ENV === "dev";
 const serverPort = +process.env.PORT || 3000;
 const serverHost = process.env.APP_HOST || "http://localhost";
@@ -93,9 +94,29 @@ export const config: VendureConfig = {
   },
   // When adding or altering custom field definitions, the database will
   // need to be updated. See the "Migrations" section in README.md.
-  customFields: {},
+  customFields: {
+    Address: [
+      {
+        name: "officeCode",
+        type: "string",
+        label: [
+          { languageCode: LanguageCode.en, value: "Office code" },
+          { languageCode: LanguageCode.es, value: "Código de oficina" },
+        ],
+      },
+      {
+        name: "shippingCompany",
+        type: "string",
+        label: [
+          { languageCode: LanguageCode.en, value: "Shipping company" },
+          { languageCode: LanguageCode.es, value: "Compañía de envío" },
+        ],
+      },
+    ],
+  },
   plugins: [
     PartialPaymentPlugin,
+    // NationalShippingPlugin,
     // HardenPlugin.init({
     //   maxQueryComplexity: 650,
     //   apiMode: IS_DEV ? "dev" : "prod",
