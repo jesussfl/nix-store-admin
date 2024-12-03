@@ -95,6 +95,16 @@ export const config: VendureConfig = {
   // When adding or altering custom field definitions, the database will
   // need to be updated. See the "Migrations" section in README.md.
   customFields: {
+    OrderLine: [
+      {
+        name: "shippingType",
+        type: "string",
+        label: [
+          { languageCode: LanguageCode.en, value: "Shipping type" },
+          { languageCode: LanguageCode.es, value: "Tipo de envío" },
+        ],
+      },
+    ],
     Address: [
       {
         name: "officeCode",
@@ -110,6 +120,14 @@ export const config: VendureConfig = {
         label: [
           { languageCode: LanguageCode.en, value: "Shipping company" },
           { languageCode: LanguageCode.es, value: "Compañía de envío" },
+        ],
+      },
+      {
+        name: "shippingDescription",
+        type: "string",
+        label: [
+          { languageCode: LanguageCode.en, value: "Shipping description" },
+          { languageCode: LanguageCode.es, value: "Descripción de envío" },
         ],
       },
     ],
