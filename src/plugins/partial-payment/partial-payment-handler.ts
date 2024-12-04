@@ -15,9 +15,12 @@ export const partialPaymentHandler = new PaymentMethodHandler({
     const initialAmount = (order.total * args.initialPercentage) / 100;
     Logger.info(`monto: ${metadata.monto}`, loggerCtx);
     if (metadata.monto < initialAmount / 100) {
-      throw new Error(`Total paid must be at least ${initialAmount / 100}`);
+      throw new Error(`El monto debe ser mayor o igual a ${initialAmount / 100} (50% del total)`);
     }
 
+    if (metadata.monto > order.total / 100) {
+      throw new Error(`El monto debe ser menor o igual al total del pedido`);
+    }
     Logger.info(`Initial partial payment of ${initialAmount} created`, loggerCtx);
 
     return {
@@ -35,7 +38,7 @@ export const partialPaymentHandler = new PaymentMethodHandler({
     if (remainingAmount <= 0) {
       return {
         success: false,
-        errorMessage: `No remaining amount due or invalid payment amount. Remaining amount: ${remainingAmount}`,
+        errorMessage: `Ningún importe pendiente de pago o importe de pago no válido. Importe restante: ${remainingAmount}`,
       };
     }
     return { success: true };
