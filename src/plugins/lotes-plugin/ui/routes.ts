@@ -7,7 +7,7 @@ export default [
   registerRouteComponent({
     component: LoteListComponent,
     path: "",
-    title: "Lotes Page",
+    title: "Lotes",
     breadcrumb: "Lotes",
   }),
 ];
