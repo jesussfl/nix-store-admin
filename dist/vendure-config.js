@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = void 0;
-const compiler_1 = require("@vendure/ui-devkit/compiler");
 const core_1 = require("@vendure/core");
 const email_plugin_1 = require("@vendure/email-plugin");
 const asset_server_plugin_1 = require("@vendure/asset-server-plugin");
@@ -243,27 +242,9 @@ exports.config = {
         admin_ui_plugin_1.AdminUiPlugin.init({
             route: "admin",
             port: serverPort + 2,
-            app: (0, compiler_1.compileUiExtensions)({
-                outputPath: path_1.default.join(__dirname, "../admin-ui"),
-                devMode: IS_DEV ? true : false,
-                // command: "yarn",
-                // ngCompilerPath: path.join(__dirname, "./node_modules/.bin/ng"),
-                extensions: [
-                    lote_plugin_1.LotesPlugin.ui,
-                    (0, compiler_1.setBranding)({
-                        // The small logo appears in the top left of the screen
-                        smallLogoPath: path_1.default.join(__dirname, "../images/nix-logo-sm.png"),
-                        // The large logo is used on the login page
-                        largeLogoPath: path_1.default.join(__dirname, "../images/nix-logo.png"),
-                        faviconPath: path_1.default.join(__dirname, "../images/favicon.ico"),
-                    }),
-                    {
-                        translations: {
-                            es: path_1.default.join(__dirname, "translations/es.json"),
-                        },
-                    },
-                ],
-            }),
+            app: {
+                path: path_1.default.join(__dirname, "../admin-ui/dist"),
+            },
             adminUiConfig: {
                 // apiPort: serverPort,
                 brand: "Nix Store",
