@@ -1,12 +1,14 @@
 import { compileUiExtensions, setBranding } from "@vendure/ui-devkit/compiler";
 import * as path from "path";
-
+import { LotesPlugin } from "./plugins/lotes-plugin/lote.plugin";
+const IS_DEV = process.env.NODE_ENV === "development";
 compileUiExtensions({
   outputPath: path.join(__dirname, "../admin-ui"),
-  // devMode: false,
+  devMode: IS_DEV ? true : false,
   // command: "yarn",
   //   ngCompilerPath: path.join(__dirname, "./node_modules/.bin/ng"),
   extensions: [
+    LotesPlugin.ui,
     setBranding({
       // The small logo appears in the top left of the screen
       smallLogoPath: path.join(__dirname, "../images/nix-logo-sm.png"),
