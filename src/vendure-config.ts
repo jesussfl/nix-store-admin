@@ -22,6 +22,8 @@ import { MyOrderPlacedStrategy } from "./plugins/partial-payment/order-placed-st
 import { customPaymentProcess } from "./plugins/partial-payment/payment-process";
 import { PartialPaymentPlugin } from "./plugins/partial-payment/partial-payment.plugin";
 import { LotesPlugin } from "./plugins/lotes-plugin/lote.plugin";
+import { Lote } from "./plugins/lotes-plugin/entities/lote.entity";
+import { compileUiExtensions, setBranding } from "@vendure/ui-devkit/compiler";
 // import { NationalShippingPlugin } from "./plugins/national-shipping/national-shipping.plugin";
 const IS_DEV = process.env.APP_ENV === "dev";
 const serverPort = +process.env.PORT || 3000;
@@ -96,6 +98,14 @@ export const config: VendureConfig = {
   // When adding or altering custom field definitions, the database will
   // need to be updated. See the "Migrations" section in README.md.
   customFields: {
+    Order: [
+      {
+        name: "lote",
+        type: "relation",
+        entity: Lote,
+        public: true,
+      },
+    ],
     OrderLine: [
       {
         name: "shippingType",
@@ -165,10 +175,27 @@ export const config: VendureConfig = {
     AdminUiPlugin.init({
       route: "admin",
       port: serverPort + 2,
-      app: {
-        path: path.join(__dirname, "../admin-ui/dist"),
-      },
-
+      app: compileUiExtensions({
+        outputPath: path.join(__dirname, "../admin-ui"),
+        devMode: IS_DEV ? true : false,
+        // command: "yarn",
+        //   ngCompilerPath: path.join(__dirname, "./node_modules/.bin/ng"),
+        extensions: [
+          LotesPlugin.ui,
+          setBranding({
+            // The small logo appears in the top left of the screen
+            smallLogoPath: path.join(__dirname, "../images/nix-logo-sm.png"),
+            // The large logo is used on the login page
+            largeLogoPath: path.join(__dirname, "../images/nix-logo.png"),
+            faviconPath: path.join(__dirname, "../images/favicon.ico"),
+          }),
+          {
+            translations: {
+              es: path.join(__dirname, "translations/es.json"),
+            },
+          },
+        ],
+      }),
       adminUiConfig: {
         apiPort: serverPort,
         brand: "Nix Store",

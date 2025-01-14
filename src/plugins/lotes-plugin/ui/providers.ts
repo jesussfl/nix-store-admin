@@ -4,7 +4,7 @@ export default [
   addNavMenuSection(
     {
       id: "lotes",
-      label: "My Extensions",
+      label: "Extensions",
       items: [
         {
           id: "lotes",

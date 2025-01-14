@@ -12,6 +12,7 @@ export const adminApiExtensions = gql`
     items: [Lote!]!
     totalItems: Int!
   }
+
   input CreateLoteInput {
     name: String!
     description: String
@@ -21,14 +22,29 @@ export const adminApiExtensions = gql`
     name: String!
     description: String
   }
+
   input LoteListOptions
 
   extend type Query {
     allLotes(options: LoteListOptions): LoteList!
+    getLote(loteId: ID!): Lote
   }
   extend type Mutation {
     createLote(input: CreateLoteInput!): Lote!
     updateLote(loteId: ID!, input: UpdateLoteInput!): Lote!
     deleteLote(loteId: ID!): Boolean!
+  }
+  extend type Order {
+    lote: Lote
+  }
+`;
+
+export const apiExtensions = gql`
+  type Lote implements Node {
+    id: ID!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    name: String!
+    description: String!
   }
 `;

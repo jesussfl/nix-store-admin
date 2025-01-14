@@ -17,6 +17,16 @@ export class LoteAdminResolver {
     return this.loteService.findAll(ctx, args.options || undefined);
   }
 
+  @Query()
+  @Allow(Permission.ReadCatalog) // Replace with appropriate permissions
+  async getLote(@Ctx() ctx: RequestContext, @Args("loteId") loteId: string): Promise<Lote | undefined> {
+    const lote = await this.loteService.findOne(ctx, loteId);
+    if (!lote) {
+      throw new Error(`Lote with ID ${loteId} not found`);
+    }
+    return lote;
+  }
+
   /**
    * Creates a new Lote.
    */

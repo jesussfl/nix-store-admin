@@ -18,6 +18,14 @@ export class LoteService {
       .then(([items, totalItems]) => ({ items, totalItems }));
   }
 
+  async findLastLote(ctx: RequestContext): Promise<Lote | null> {
+    return this.connection
+      .getRepository(ctx, Lote)
+      .createQueryBuilder("lote")
+      .orderBy("lote.createdAt", "DESC") // Adjust the field to suit your schema
+      .addOrderBy("lote.id", "DESC") // Secondary ordering by ID (if necessary)
+      .getOne();
+  }
   /**
    * Creates a new Lote with the given name and description.
    */
@@ -32,7 +40,11 @@ export class LoteService {
    * Finds a Lote by its ID.
    */
   async findOne(ctx: RequestContext, loteId: ID): Promise<Lote | null> {
-    return this.connection.getRepository(ctx, Lote).findOne({ where: { id: loteId } });
+    return this.connection.getRepository(ctx, Lote).findOne({
+      where: {
+        id: loteId,
+      },
+    });
   }
 
   /**

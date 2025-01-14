@@ -2691,6 +2691,7 @@ export type ModifyOrderInput = {
   addItems?: InputMaybe<Array<AddItemInput>>;
   adjustOrderLines?: InputMaybe<Array<OrderLineInput>>;
   couponCodes?: InputMaybe<Array<Scalars['String']['input']>>;
+  customFields?: InputMaybe<UpdateOrderCustomFieldsInput>;
   dryRun: Scalars['Boolean']['input'];
   note?: InputMaybe<Scalars['String']['input']>;
   options?: InputMaybe<ModifyOrderOptions>;
@@ -3974,13 +3975,14 @@ export type Order = Node & {
   couponCodes: Array<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   currencyCode: CurrencyCode;
-  customFields?: Maybe<Scalars['JSON']['output']>;
+  customFields?: Maybe<OrderCustomFields>;
   customer?: Maybe<Customer>;
   discounts: Array<Discount>;
   fulfillments?: Maybe<Array<Fulfillment>>;
   history: HistoryEntryList;
   id: Scalars['ID']['output'];
   lines: Array<OrderLine>;
+  lote?: Maybe<Lote>;
   modifications: Array<OrderModification>;
   nextStates: Array<Scalars['String']['output']>;
   /**
@@ -4042,6 +4044,11 @@ export type OrderAddress = {
   province?: Maybe<Scalars['String']['output']>;
   streetLine1?: Maybe<Scalars['String']['output']>;
   streetLine2?: Maybe<Scalars['String']['output']>;
+};
+
+export type OrderCustomFields = {
+  __typename?: 'OrderCustomFields';
+  lote?: Maybe<Lote>;
 };
 
 export type OrderFilterParameter = {
@@ -4223,6 +4230,7 @@ export type OrderSortParameter = {
   createdAt?: InputMaybe<SortOrder>;
   customerLastName?: InputMaybe<SortOrder>;
   id?: InputMaybe<SortOrder>;
+  lote?: InputMaybe<SortOrder>;
   orderPlacedAt?: InputMaybe<SortOrder>;
   shipping?: InputMaybe<SortOrder>;
   shippingWithTax?: InputMaybe<SortOrder>;
@@ -5119,6 +5127,7 @@ export type Query = {
   facetValues: FacetValueList;
   facets: FacetList;
   fulfillmentHandlers: Array<ConfigurableOperationDefinition>;
+  getLote?: Maybe<Lote>;
   globalSettings: GlobalSettings;
   job?: Maybe<Job>;
   jobBufferSize: Array<JobBufferSize>;
@@ -5270,6 +5279,11 @@ export type QueryFacetValuesArgs = {
 
 export type QueryFacetsArgs = {
   options?: InputMaybe<FacetListOptions>;
+};
+
+
+export type QueryGetLoteArgs = {
+  loteId: Scalars['ID']['input'];
 };
 
 
@@ -6514,8 +6528,12 @@ export type UpdateOrderAddressInput = {
   streetLine2?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type UpdateOrderCustomFieldsInput = {
+  loteId?: InputMaybe<Scalars['ID']['input']>;
+};
+
 export type UpdateOrderInput = {
-  customFields?: InputMaybe<Scalars['JSON']['input']>;
+  customFields?: InputMaybe<UpdateOrderCustomFieldsInput>;
   id: Scalars['ID']['input'];
 };
 
@@ -6725,6 +6743,37 @@ export type ZoneSortParameter = {
   updatedAt?: InputMaybe<SortOrder>;
 };
 
+export type LoteDetailFragment = { __typename?: 'Lote', id: string, createdAt: any, updatedAt: any, name: string, description?: string | null };
+
+export type GetLoteQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetLoteQuery = { __typename?: 'Query', getLote?: { __typename?: 'Lote', id: string, createdAt: any, updatedAt: any, name: string, description?: string | null } | null };
+
+export type CreateLoteMutationVariables = Exact<{
+  input: CreateLoteInput;
+}>;
+
+
+export type CreateLoteMutation = { __typename?: 'Mutation', createLote: { __typename?: 'Lote', id: string, createdAt: any, updatedAt: any, name: string, description?: string | null } };
+
+export type UpdateLoteMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: UpdateLoteInput;
+}>;
+
+
+export type UpdateLoteMutation = { __typename?: 'Mutation', updateLote: { __typename?: 'Lote', id: string, createdAt: any, updatedAt: any, name: string, description?: string | null } };
+
+export type DeleteLoteMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteLoteMutation = { __typename?: 'Mutation', deleteLote: boolean };
+
 export type AllLotesQueryVariables = Exact<{
   options?: InputMaybe<LoteListOptions>;
 }>;
@@ -6732,5 +6781,9 @@ export type AllLotesQueryVariables = Exact<{
 
 export type AllLotesQuery = { __typename?: 'Query', allLotes: { __typename?: 'LoteList', totalItems: number, items: Array<{ __typename?: 'Lote', id: string, createdAt: any, updatedAt: any, name: string, description?: string | null }> } };
 
-
+export const LoteDetailFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"LoteDetail"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Lote"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}}]} as unknown as DocumentNode<LoteDetailFragment, unknown>;
+export const GetLoteDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetLote"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getLote"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"loteId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"LoteDetail"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"LoteDetail"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Lote"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}}]} as unknown as DocumentNode<GetLoteQuery, GetLoteQueryVariables>;
+export const CreateLoteDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateLote"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateLoteInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createLote"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"LoteDetail"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"LoteDetail"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Lote"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}}]} as unknown as DocumentNode<CreateLoteMutation, CreateLoteMutationVariables>;
+export const UpdateLoteDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateLote"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateLoteInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateLote"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"loteId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"LoteDetail"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"LoteDetail"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Lote"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}}]} as unknown as DocumentNode<UpdateLoteMutation, UpdateLoteMutationVariables>;
+export const DeleteLoteDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeleteLote"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteLote"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"loteId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}]}]}}]} as unknown as DocumentNode<DeleteLoteMutation, DeleteLoteMutationVariables>;
 export const AllLotesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"AllLotes"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"options"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"LoteListOptions"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"allLotes"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"options"},"value":{"kind":"Variable","name":{"kind":"Name","value":"options"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}},{"kind":"Field","name":{"kind":"Name","value":"totalItems"}}]}}]}}]} as unknown as DocumentNode<AllLotesQuery, AllLotesQueryVariables>;

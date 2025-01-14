@@ -12,9 +12,6 @@ const getLoteListDocument = graphql(`
         updatedAt
         name
         description
-        # text
-        # authorName
-        # productId
       }
       totalItems
     }
@@ -77,7 +74,11 @@ export class LoteListComponent extends TypedBaseListComponent<typeof getLoteList
     super();
     super.configure({
       document: getLoteListDocument,
-      getItems: (data) => data.allLotes,
+      getItems: (data) => {
+        // Log the data items here
+        console.log("Retrieved data:", data.allLotes);
+        return data.allLotes;
+      },
       setVariables: (skip, take) => ({
         options: {
           skip,

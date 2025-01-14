@@ -2685,6 +2685,7 @@ export type ModifyOrderInput = {
   addItems?: InputMaybe<Array<AddItemInput>>;
   adjustOrderLines?: InputMaybe<Array<OrderLineInput>>;
   couponCodes?: InputMaybe<Array<Scalars['String']['input']>>;
+  customFields?: InputMaybe<UpdateOrderCustomFieldsInput>;
   dryRun: Scalars['Boolean']['input'];
   note?: InputMaybe<Scalars['String']['input']>;
   options?: InputMaybe<ModifyOrderOptions>;
@@ -3968,13 +3969,14 @@ export type Order = Node & {
   couponCodes: Array<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   currencyCode: CurrencyCode;
-  customFields?: Maybe<Scalars['JSON']['output']>;
+  customFields?: Maybe<OrderCustomFields>;
   customer?: Maybe<Customer>;
   discounts: Array<Discount>;
   fulfillments?: Maybe<Array<Fulfillment>>;
   history: HistoryEntryList;
   id: Scalars['ID']['output'];
   lines: Array<OrderLine>;
+  lote?: Maybe<Lote>;
   modifications: Array<OrderModification>;
   nextStates: Array<Scalars['String']['output']>;
   /**
@@ -4036,6 +4038,11 @@ export type OrderAddress = {
   province?: Maybe<Scalars['String']['output']>;
   streetLine1?: Maybe<Scalars['String']['output']>;
   streetLine2?: Maybe<Scalars['String']['output']>;
+};
+
+export type OrderCustomFields = {
+  __typename?: 'OrderCustomFields';
+  lote?: Maybe<Lote>;
 };
 
 export type OrderFilterParameter = {
@@ -4217,6 +4224,7 @@ export type OrderSortParameter = {
   createdAt?: InputMaybe<SortOrder>;
   customerLastName?: InputMaybe<SortOrder>;
   id?: InputMaybe<SortOrder>;
+  lote?: InputMaybe<SortOrder>;
   orderPlacedAt?: InputMaybe<SortOrder>;
   shipping?: InputMaybe<SortOrder>;
   shippingWithTax?: InputMaybe<SortOrder>;
@@ -5113,6 +5121,7 @@ export type Query = {
   facetValues: FacetValueList;
   facets: FacetList;
   fulfillmentHandlers: Array<ConfigurableOperationDefinition>;
+  getLote?: Maybe<Lote>;
   globalSettings: GlobalSettings;
   job?: Maybe<Job>;
   jobBufferSize: Array<JobBufferSize>;
@@ -5264,6 +5273,11 @@ export type QueryFacetValuesArgs = {
 
 export type QueryFacetsArgs = {
   options?: InputMaybe<FacetListOptions>;
+};
+
+
+export type QueryGetLoteArgs = {
+  loteId: Scalars['ID']['input'];
 };
 
 
@@ -6508,8 +6522,12 @@ export type UpdateOrderAddressInput = {
   streetLine2?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type UpdateOrderCustomFieldsInput = {
+  loteId?: InputMaybe<Scalars['ID']['input']>;
+};
+
 export type UpdateOrderInput = {
-  customFields?: InputMaybe<Scalars['JSON']['input']>;
+  customFields?: InputMaybe<UpdateOrderCustomFieldsInput>;
   id: Scalars['ID']['input'];
 };
 
