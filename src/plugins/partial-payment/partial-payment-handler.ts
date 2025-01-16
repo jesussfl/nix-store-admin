@@ -1,46 +1,81 @@
-import { LanguageCode, PaymentMethodHandler, SettlePaymentResult, SettlePaymentErrorResult } from "@vendure/core";
-import { Logger } from "@vendure/core";
+import { LanguageCode, PaymentMethodHandler, SettlePaymentResult, SettlePaymentErrorResult, Logger } from "@vendure/core";
 
 const loggerCtx = "PartialPaymentHandler";
 
 export const partialPaymentHandler = new PaymentMethodHandler({
   code: "partial-payment",
-  description: [{ languageCode: LanguageCode.en, value: "Partial Payment" }],
+  description: [
+    {
+      languageCode: LanguageCode.en,
+      value: "Partial Payment",
+    },
+  ],
   args: {
-    initialPercentage: { type: "int", defaultValue: 50 }, // could also be 60, 70, etc.
+    initialPercentage: {
+      type: "int",
+      defaultValue: 50, // 50% by default
+    },
   },
 
-  // Create initial partial payment
+  // Called whenever a new partial payment is created
   createPayment: async (ctx, order, amount, args, metadata) => {
-    const initialAmount = (order.total * args.initialPercentage) / 100;
-    Logger.info(`monto: ${metadata.monto}`, loggerCtx);
-    if (metadata.monto < initialAmount / 100) {
-      throw new Error(`El monto debe ser mayor o igual a ${initialAmount / 100} (50% del total)`);
+    // 1) Convert the order total from subunits to decimal
+    const orderTotalDecimal = order.total / 100;
+
+    // 2) Sum up already-paid amounts in subunits and convert to decimal
+    const totalPaidSoFarInSubunits = (order.payments || []).reduce((sum, p) => sum + p.amount, 0);
+    const totalPaidSoFarDecimal = totalPaidSoFarInSubunits / 100;
+
+    // 3) metadata.monto is presumably typed in decimal (like "20" = 20.00)
+    const newPaymentDecimal = Number(metadata.monto);
+    if (isNaN(newPaymentDecimal) || newPaymentDecimal <= 0) {
+      throw new Error(`El monto debe ser un número válido mayor que 0.`);
     }
 
-    if (metadata.monto > order.total / 100) {
-      throw new Error(`El monto debe ser menor o igual al total del pedido`);
+    // 4) If this is the FIRST payment, enforce the 50% rule in decimal
+    if (totalPaidSoFarDecimal === 0) {
+      const halfOfTotalDecimal = orderTotalDecimal * (args.initialPercentage / 100);
+      if (newPaymentDecimal < halfOfTotalDecimal) {
+        throw new Error(`El monto debe ser >= ${args.initialPercentage}% del total (>= ${halfOfTotalDecimal.toFixed(2)}).`);
+      }
     }
-    Logger.info(`Initial partial payment of ${initialAmount} created`, loggerCtx);
 
+    // 5) No check if they exceed the total. Users can overpay.
+
+    Logger.info(`Accepting partial payment of ${newPaymentDecimal}. Already paid: ${totalPaidSoFarDecimal}, order total: ${orderTotalDecimal}`, loggerCtx);
+
+    // 6) Convert the new payment from decimal back to subunits for Vendure:
+    const newPaymentInSubunits = Math.round(newPaymentDecimal * 100);
+
+    // 7) Return the Payment object in Vendure’s expected format
     return {
-      amount: metadata.monto,
+      amount: newPaymentInSubunits,
       state: "Validating",
-      transactionId: metadata.referencia || metadata.email,
-      metadata: { ...metadata, initialPercentage: args.initialPercentage },
+      transactionId: metadata.referencia || "", // or other unique ID
+      metadata: {
+        ...metadata,
+        initialPercentage: args.initialPercentage,
+      },
     };
   },
 
-  // Settle remaining payment when the order is in PartiallyPaid state
+  // Called when Vendure tries to settle the payment
   settlePayment: async (ctx, order, payment, args, metadata): Promise<SettlePaymentResult | SettlePaymentErrorResult> => {
-    const remainingAmount = order.total - payment.amount;
+    // Calculate total paid so far in subunits
 
-    if (remainingAmount <= 0) {
-      return {
-        success: false,
-        errorMessage: `Ningún importe pendiente de pago o importe de pago no válido. Importe restante: ${remainingAmount}`,
-      };
-    }
+    // console.log("Settling payment", payment, order);
+
+    // const totalPaidSoFar = (order.payments || []).reduce((sum, p) => sum + p.amount, 0);
+
+    // // Option A: If you ONLY want to settle once fully paid:
+    // if (totalPaidSoFar < order.total) {
+    //   return {
+    //     success: false,
+    //     errorMessage: `Aún hay un monto pendiente: ${(order.total - totalPaidSoFar) / 100}.`,
+    //   };
+    // } else {
+    //   // All paid (or overpaid)
+    // }
     return { success: true };
   },
 });

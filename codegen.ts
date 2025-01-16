@@ -2,7 +2,7 @@ import type { CodegenConfig } from "@graphql-codegen/cli";
 
 const config: CodegenConfig = {
   overwrite: true,
-  schema: "nix-store-admin-production.up.railway.app/admin-api",
+  schema: "https://nix-store-admin-production.up.railway.app/admin-api",
   config: {
     scalars: { Money: "number" },
     namingConvention: { enumValues: "keep" },
