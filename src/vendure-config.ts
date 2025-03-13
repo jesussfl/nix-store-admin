@@ -24,6 +24,7 @@ import { PartialPaymentPlugin } from "./plugins/partial-payment/partial-payment.
 import { LotesPlugin } from "./plugins/lotes-plugin/lote.plugin";
 import { Lote } from "./plugins/lotes-plugin/entities/lote.entity";
 import { compileUiExtensions, setBranding } from "@vendure/ui-devkit/compiler";
+import { StockCheckPlugin } from "./plugins/stock-check-plugin/stock-check.plugin";
 // import { NationalShippingPlugin } from "./plugins/national-shipping/national-shipping.plugin";
 const IS_DEV = process.env.APP_ENV === "dev";
 const serverPort = +process.env.PORT || 3000;
@@ -146,6 +147,7 @@ export const config: VendureConfig = {
   plugins: [
     PartialPaymentPlugin,
     LotesPlugin,
+    StockCheckPlugin,
 
     AssetServerPlugin.init({
       route: "assets",
