@@ -178,9 +178,9 @@ export const config: VendureConfig = {
       route: "admin",
       port: serverPort + 2,
       app: compileUiExtensions({
-        outputPath: IS_DEV ? path.join(__dirname, "../admin-ui") : path.join(__dirname, "../dist/admin-ui"),
+        outputPath: path.join(__dirname, "../admin-ui"),
         devMode: IS_DEV ? true : false,
-        command: "yarn",
+
         //   ngCompilerPath: path.join(__dirname, "./node_modules/.bin/ng"),
         extensions: [
           LotesPlugin.ui,

@@ -168,9 +168,8 @@ exports.config = {
             route: "admin",
             port: serverPort + 2,
             app: (0, compiler_1.compileUiExtensions)({
-                outputPath: IS_DEV ? path_1.default.join(__dirname, "../admin-ui") : path_1.default.join(__dirname, "../dist/admin-ui"),
+                outputPath: path_1.default.join(__dirname, "../admin-ui"),
                 devMode: IS_DEV ? true : false,
-                command: "yarn",
                 //   ngCompilerPath: path.join(__dirname, "./node_modules/.bin/ng"),
                 extensions: [
                     lote_plugin_1.LotesPlugin.ui,
