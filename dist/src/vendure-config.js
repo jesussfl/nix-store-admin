@@ -17,6 +17,8 @@ const order_placed_strategy_1 = require("./plugins/partial-payment/order-placed-
 const payment_process_1 = require("./plugins/partial-payment/payment-process");
 const partial_payment_plugin_1 = require("./plugins/partial-payment/partial-payment.plugin");
 const lote_plugin_1 = require("./plugins/lotes-plugin/lote.plugin");
+const lote_entity_1 = require("./plugins/lotes-plugin/entities/lote.entity");
+const stock_check_plugin_1 = require("./plugins/stock-check-plugin/stock-check.plugin");
 // import { NationalShippingPlugin } from "./plugins/national-shipping/national-shipping.plugin";
 const IS_DEV = process.env.APP_ENV === "dev";
 const serverPort = +process.env.PORT || 3000;
@@ -64,7 +66,7 @@ exports.config = {
         // See the README.md "Migrations" section for an explanation of
         // the `synchronize` and `migrations` options.
         synchronize: process.env.DB_SYNCHRONIZE === "true",
-        migrations: [path_1.default.join(__dirname, "./migrations/*.+(js|ts)")],
+        migrations: [path_1.default.join(__dirname, "./src/migrations/*.+(js|ts)")],
         logging: false,
         database: process.env.DB_NAME,
         schema: process.env.DB_SCHEMA,
@@ -87,6 +89,14 @@ exports.config = {
     // When adding or altering custom field definitions, the database will
     // need to be updated. See the "Migrations" section in README.md.
     customFields: {
+        Order: [
+            {
+                name: "lote",
+                type: "relation",
+                entity: lote_entity_1.Lote,
+                public: true,
+            },
+        ],
         OrderLine: [
             {
                 name: "shippingType",
@@ -127,93 +137,7 @@ exports.config = {
     plugins: [
         partial_payment_plugin_1.PartialPaymentPlugin,
         lote_plugin_1.LotesPlugin,
-        // NationalShippingPlugin,
-        // HardenPlugin.init({
-        //   maxQueryComplexity: 650,
-        //   apiMode: IS_DEV ? "dev" : "prod",
-        // }),
-        // ElasticsearchPlugin.init({
-        //   host: "https://nix-store-admin.onrender.com",
-        //   port: 9200,
-        //   indexSettings: {
-        //     index: {
-        //       max_result_window: 50000,
-        //     },
-        //     analysis: {
-        //       analyzer: {
-        //         custom_autocomplete_analyzer: {
-        //           tokenizer: "standard",
-        //           filter: ["lowercase", "ngram", "english_stop", "english_stemmer"],
-        //         },
-        //         custom_search_analyzer: {
-        //           tokenizer: "standard",
-        //           filter: ["lowercase", "english_stemmer"],
-        //         },
-        //       },
-        //       filter: {
-        //         ngram: {
-        //           type: "edge_ngram",
-        //           min_gram: 2,
-        //           max_gram: 12,
-        //         },
-        //         english_stop: {
-        //           type: "stop",
-        //           stopwords: "_english_", // Change to English stopwords
-        //         },
-        //         english_stemmer: {
-        //           type: "stemmer",
-        //           language: "english", // Change to English stemmer
-        //         },
-        //       },
-        //     },
-        //   },
-        //   indexMappingProperties: {
-        //     productName: {
-        //       type: "text",
-        //       analyzer: "custom_autocomplete_analyzer",
-        //       search_analyzer: "custom_search_analyzer",
-        //       fields: {
-        //         keyword: {
-        //           type: "keyword",
-        //           ignore_above: 256,
-        //         },
-        //       },
-        //     },
-        //     productVariantName: {
-        //       type: "text",
-        //       analyzer: "custom_autocomplete_analyzer",
-        //       search_analyzer: "custom_search_analyzer",
-        //       fields: {
-        //         keyword: {
-        //           type: "keyword",
-        //           ignore_above: 256,
-        //         },
-        //       },
-        //     },
-        //     sku: {
-        //       type: "text",
-        //       analyzer: "custom_autocomplete_analyzer",
-        //       search_analyzer: "custom_search_analyzer",
-        //       fields: {
-        //         keyword: {
-        //           type: "keyword",
-        //           ignore_above: 256,
-        //         },
-        //       },
-        //     },
-        //     description: {
-        //       type: "text",
-        //       analyzer: "custom_autocomplete_analyzer",
-        //       search_analyzer: "custom_search_analyzer",
-        //       fields: {
-        //         keyword: {
-        //           type: "keyword",
-        //           ignore_above: 256,
-        //         },
-        //       },
-        //     },
-        //   },
-        // }),
+        stock_check_plugin_1.StockCheckPlugin,
         asset_server_plugin_1.AssetServerPlugin.init({
             route: "assets",
             assetUploadDir: process.env.ASSET_UPLOAD_DIR || path_1.default.join(__dirname, "../static/assets"),
@@ -246,7 +170,7 @@ exports.config = {
                 path: path_1.default.join(__dirname, "../admin-ui/dist"),
             },
             adminUiConfig: {
-                // apiPort: serverPort,
+                apiPort: serverPort,
                 brand: "Nix Store",
                 // hideVendureBranding: true,
                 hideVersion: true,

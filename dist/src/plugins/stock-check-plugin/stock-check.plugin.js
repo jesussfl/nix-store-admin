@@ -6,25 +6,24 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PartialPaymentPlugin = void 0;
+exports.StockCheckPlugin = void 0;
 const core_1 = require("@vendure/core");
 const api_extensions_1 = require("./api/api-extensions");
-const partial_payment_resolver_1 = require("./api/partial-payment.resolver");
-const custom_mutation_result_resolver_1 = require("./api/custom-mutation-result.resolver");
-let PartialPaymentPlugin = class PartialPaymentPlugin {
+const stock_check_resolver_1 = require("./api/stock-check.resolver");
+const stock_check_service_1 = require("./services/stock-check.service");
+/**
+ * Plugin para verificar y exponer información sobre el nivel de stock de los productos
+ */
+let StockCheckPlugin = class StockCheckPlugin {
 };
-exports.PartialPaymentPlugin = PartialPaymentPlugin;
-exports.PartialPaymentPlugin = PartialPaymentPlugin = __decorate([
+exports.StockCheckPlugin = StockCheckPlugin;
+exports.StockCheckPlugin = StockCheckPlugin = __decorate([
     (0, core_1.VendurePlugin)({
         imports: [core_1.PluginCommonModule],
+        providers: [stock_check_service_1.StockCheckService],
         shopApiExtensions: {
-            schema: api_extensions_1.partialPaymentExtension,
-            resolvers: [partial_payment_resolver_1.OrderPaymentResolver, custom_mutation_result_resolver_1.MyCustomMutationResultResolver],
+            schema: api_extensions_1.shopApiExtensions,
+            resolvers: [stock_check_resolver_1.StockCheckShopResolver],
         },
-        // compatibility: "^2.0.0",
-        providers: [core_1.OrderService],
-        // configuration: config => {
-        //     // ...
-        // },
     })
-], PartialPaymentPlugin);
+], StockCheckPlugin);

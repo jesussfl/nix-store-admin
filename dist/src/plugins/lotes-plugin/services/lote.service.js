@@ -29,6 +29,14 @@ let LoteService = class LoteService {
             .getManyAndCount()
             .then(([items, totalItems]) => ({ items, totalItems }));
     }
+    async findLastLote(ctx) {
+        return this.connection
+            .getRepository(ctx, lote_entity_1.Lote)
+            .createQueryBuilder("lote")
+            .orderBy("lote.createdAt", "DESC") // Adjust the field to suit your schema
+            .addOrderBy("lote.id", "DESC") // Secondary ordering by ID (if necessary)
+            .getOne();
+    }
     /**
      * Creates a new Lote with the given name and description.
      */
@@ -42,7 +50,11 @@ let LoteService = class LoteService {
      * Finds a Lote by its ID.
      */
     async findOne(ctx, loteId) {
-        return this.connection.getRepository(ctx, lote_entity_1.Lote).findOne({ where: { id: loteId } });
+        return this.connection.getRepository(ctx, lote_entity_1.Lote).findOne({
+            where: {
+                id: loteId,
+            },
+        });
     }
     /**
      * Updates a Lote's name and description.

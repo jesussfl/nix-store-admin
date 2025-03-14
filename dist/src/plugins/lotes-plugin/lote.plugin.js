@@ -48,11 +48,16 @@ LotesPlugin.ui = {
 exports.LotesPlugin = LotesPlugin = __decorate([
     (0, core_1.VendurePlugin)({
         imports: [core_1.PluginCommonModule],
+        exports: [lote_service_1.LoteService],
         entities: [lote_entity_1.Lote],
         providers: [lote_service_1.LoteService],
         adminApiExtensions: {
             schema: api_extensions_1.adminApiExtensions,
             resolvers: [lote_admin_resolver_1.LoteAdminResolver],
+        },
+        shopApiExtensions: {
+            schema: api_extensions_1.apiExtensions,
+            resolvers: [],
         },
     })
 ], LotesPlugin);

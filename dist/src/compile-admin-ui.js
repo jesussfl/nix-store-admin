@@ -29,9 +29,9 @@ const path = __importStar(require("path"));
 const lote_plugin_1 = require("./plugins/lotes-plugin/lote.plugin");
 const IS_DEV = process.env.NODE_ENV === "development";
 (_b = (_a = (0, compiler_1.compileUiExtensions)({
-    outputPath: path.join(__dirname, "../admin-ui"),
+    outputPath: IS_DEV ? path.join(__dirname, "../admin-ui") : path.join(__dirname, "../dist/admin-ui"),
     devMode: IS_DEV ? true : false,
-    // command: "yarn",
+    command: "yarn",
     //   ngCompilerPath: path.join(__dirname, "./node_modules/.bin/ng"),
     extensions: [
         lote_plugin_1.LotesPlugin.ui,

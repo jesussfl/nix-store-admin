@@ -26,6 +26,13 @@ let LoteAdminResolver = class LoteAdminResolver {
     async allLotes(ctx, args) {
         return this.loteService.findAll(ctx, args.options || undefined);
     }
+    async getLote(ctx, loteId) {
+        const lote = await this.loteService.findOne(ctx, loteId);
+        if (!lote) {
+            throw new Error(`Lote with ID ${loteId} not found`);
+        }
+        return lote;
+    }
     /**
      * Creates a new Lote.
      */
@@ -56,6 +63,16 @@ __decorate([
     __metadata("design:paramtypes", [core_1.RequestContext, Object]),
     __metadata("design:returntype", Promise)
 ], LoteAdminResolver.prototype, "allLotes", null);
+__decorate([
+    (0, graphql_1.Query)(),
+    (0, core_1.Allow)(core_1.Permission.ReadCatalog) // Replace with appropriate permissions
+    ,
+    __param(0, (0, core_1.Ctx)()),
+    __param(1, (0, graphql_1.Args)("loteId")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [core_1.RequestContext, String]),
+    __metadata("design:returntype", Promise)
+], LoteAdminResolver.prototype, "getLote", null);
 __decorate([
     (0, graphql_1.Mutation)(),
     (0, core_1.Transaction)(),
