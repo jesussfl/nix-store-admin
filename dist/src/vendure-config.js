@@ -18,7 +18,6 @@ const payment_process_1 = require("./plugins/partial-payment/payment-process");
 const partial_payment_plugin_1 = require("./plugins/partial-payment/partial-payment.plugin");
 const lote_plugin_1 = require("./plugins/lotes-plugin/lote.plugin");
 const lote_entity_1 = require("./plugins/lotes-plugin/entities/lote.entity");
-const compiler_1 = require("@vendure/ui-devkit/compiler");
 const stock_check_plugin_1 = require("./plugins/stock-check-plugin/stock-check.plugin");
 // import { NationalShippingPlugin } from "./plugins/national-shipping/national-shipping.plugin";
 const IS_DEV = process.env.APP_ENV === "dev";
@@ -167,28 +166,9 @@ exports.config = {
         admin_ui_plugin_1.AdminUiPlugin.init({
             route: "admin",
             port: serverPort + 2,
-            app: (0, compiler_1.compileUiExtensions)({
-                outputPath: path_1.default.join(__dirname, "../admin-ui"),
-                devMode: IS_DEV ? true : false,
-                //   ngCompilerPath: path.join(__dirname, "./node_modules/.bin/ng"),
-                extensions: [
-                    lote_plugin_1.LotesPlugin.ui,
-                    (0, compiler_1.setBranding)({
-                        // The small logo appears in the top left of the screen
-                        smallLogoPath: path_1.default.join(__dirname, "../images/nix-logo-sm.png"),
-                        // The large logo is used on the login page
-                        largeLogoPath: path_1.default.join(__dirname, "../images/nix-logo.png"),
-                        faviconPath: path_1.default.join(__dirname, "../images/favicon.ico"),
-                    }),
-                    {
-                        translations: {
-                            es: path_1.default.join(__dirname, "translations/es.json"),
-                        },
-                    },
-                ],
-            }),
+            app: compileAdminUi(),
             adminUiConfig: {
-                apiPort: serverPort,
+                ...(IS_DEV ? { apiPort: serverPort } : {}),
                 brand: "Nix Store",
                 // hideVendureBranding: true,
                 hideVersion: true,
@@ -198,3 +178,13 @@ exports.config = {
         }),
     ],
 };
+function compileAdminUi() {
+    if (!IS_DEV) {
+        return {
+            path: path_1.default.join(__dirname, "../admin-ui/dist"),
+        };
+    }
+    return {
+        path: path_1.default.join(__dirname, "../admin-ui"),
+    };
+}
