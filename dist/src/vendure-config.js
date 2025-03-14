@@ -179,6 +179,7 @@ exports.config = {
     ],
 };
 function compileAdminUi() {
+    console.log("IS_DEV", IS_DEV);
     if (!IS_DEV) {
         return {
             path: path_1.default.join(__dirname, "../admin-ui/dist"),

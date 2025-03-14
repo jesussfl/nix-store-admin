@@ -7,6 +7,6 @@ COPY yarn.lock ./
 RUN yarn install
 COPY . .
 
-RUN yarn build
 RUN yarn build:admin
+RUN yarn build
 CMD ["yarn", "start"]
