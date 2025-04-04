@@ -3,14 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev:server": "ts-node ./src/index.ts",
-    "dev:worker": "ts-node ./src/index-worker.ts",
-    "dev": "concurrently npm:dev:*",
-    "start:server": "node ./dist/src/index.js",
-    "start:worker": "node ./dist/src/index-worker.js",
-    "start": "concurrently npm:start:*",
+    "dev:server": "cross-env NODE_ENV=development ts-node ./src/index.ts",
+    "dev:worker": "cross-env NODE_ENV=development ts-node ./src/index-worker.ts",
+    "dev": "cross-env NODE_ENV=development concurrently npm:dev:*",
+    "start:server": "cross-env NODE_ENV=production node ./dist/src/index.js",
+    "start:worker": "cross-env NODE_ENV=production node ./dist/src/index-worker.js",
+    "start": "cross-env NODE_ENV=production concurrently npm:start:*",
     "copy": "npx copyfiles -u 1 'admin-ui/dist/**/*' dist",
-    "build": "tsc && yarn copy",
+    "build": "cross-env NODE_ENV=production tsc && yarn copy",
     "build:admin": "rimraf admin-ui && npx ts-node src/compile-admin-ui.ts",
     "codegen": "graphql-codegen --config codegen.ts"
   },
@@ -32,6 +32,7 @@
     "@vendure/create": "^3.0.4",
     "@vendure/ui-devkit": "^3.0.5",
     "concurrently": "9.0.1",
+    "cross-env": "^7.0.3",
     "typescript": "5.3.3"
   }
 }

@@ -13,7 +13,6 @@ import {
 import { defaultEmailHandlers, EmailPlugin, FileBasedTemplateLoader } from "@vendure/email-plugin";
 import { AssetServerPlugin } from "@vendure/asset-server-plugin";
 import { AdminUiPlugin } from "@vendure/admin-ui-plugin";
-import "dotenv/config";
 import path from "path";
 import { externalShippingCalculator } from "./shipping-methods/external-shipping-calculator";
 import { partialPaymentHandler } from "./plugins/partial-payment/partial-payment-handler";
@@ -26,13 +25,12 @@ import { Lote } from "./plugins/lotes-plugin/entities/lote.entity";
 import { compileUiExtensions, setBranding } from "@vendure/ui-devkit/compiler";
 import { StockCheckPlugin } from "./plugins/stock-check-plugin/stock-check.plugin";
 // import { NationalShippingPlugin } from "./plugins/national-shipping/national-shipping.plugin";
-const IS_DEV = process.env.APP_ENV === "dev";
+import "./config";
+
+const IS_DEV = process.env.NODE_ENV === "development";
 const serverPort = +process.env.PORT || 3000;
-const serverHost = process.env.APP_HOST || "http://localhost";
 export const config: VendureConfig = {
   apiOptions: {
-    // hostname: serverHost,
-    // hostname: serverHost,
     port: +(process.env.PORT || 3000),
     adminApiPath: "admin-api",
     shopApiPath: "shop-api",
@@ -181,10 +179,10 @@ export const config: VendureConfig = {
       adminUiConfig: {
         ...(IS_DEV ? { apiPort: serverPort } : {}),
         brand: "Nix Store",
-        // hideVendureBranding: true,
+        hideVendureBranding: true,
 
         hideVersion: true,
-        defaultLanguage: LanguageCode.en,
+        defaultLanguage: LanguageCode.es,
         availableLanguages: [LanguageCode.es, LanguageCode.en],
       },
     }),
@@ -192,7 +190,6 @@ export const config: VendureConfig = {
 };
 
 function compileAdminUi() {
-  console.log("IS_DEV", IS_DEV);
   if (!IS_DEV) {
     return {
       path: path.join(__dirname, "../admin-ui/dist"),

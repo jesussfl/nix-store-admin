@@ -1,8 +1,10 @@
 import type { CodegenConfig } from "@graphql-codegen/cli";
 
+const schemaUrl = process.env.GRAPHQL_SCHEMA_URL || "https://nix-store-admin-production.up.railway.app/admin-api";
+
 const config: CodegenConfig = {
   overwrite: true,
-  schema: "https://nix-store-admin-production.up.railway.app/admin-api",
+  schema: schemaUrl,
   // schema: "http://localhost:3000/admin-api",
   config: {
     scalars: { Money: "number" },

@@ -1,6 +1,10 @@
 import { bootstrap, JobQueueService, runMigrations } from "@vendure/core";
+import "./config";
 import { config } from "./vendure-config";
 import { populateOnFirstRun } from "./populate";
+
+// Mostrar mensaje informativo sobre el entorno actual
+console.log(`Running server in ${process.env.NODE_ENV} mode`);
 
 populateOnFirstRun(config)
   .then(() => runMigrations(config))

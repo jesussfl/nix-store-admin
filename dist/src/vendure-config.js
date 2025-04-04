@@ -8,7 +8,6 @@ const core_1 = require("@vendure/core");
 const email_plugin_1 = require("@vendure/email-plugin");
 const asset_server_plugin_1 = require("@vendure/asset-server-plugin");
 const admin_ui_plugin_1 = require("@vendure/admin-ui-plugin");
-require("dotenv/config");
 const path_1 = __importDefault(require("path"));
 const external_shipping_calculator_1 = require("./shipping-methods/external-shipping-calculator");
 const partial_payment_handler_1 = require("./plugins/partial-payment/partial-payment-handler");
@@ -18,15 +17,14 @@ const payment_process_1 = require("./plugins/partial-payment/payment-process");
 const partial_payment_plugin_1 = require("./plugins/partial-payment/partial-payment.plugin");
 const lote_plugin_1 = require("./plugins/lotes-plugin/lote.plugin");
 const lote_entity_1 = require("./plugins/lotes-plugin/entities/lote.entity");
+const compiler_1 = require("@vendure/ui-devkit/compiler");
 const stock_check_plugin_1 = require("./plugins/stock-check-plugin/stock-check.plugin");
 // import { NationalShippingPlugin } from "./plugins/national-shipping/national-shipping.plugin";
-const IS_DEV = process.env.APP_ENV === "dev";
+require("./config");
+const IS_DEV = process.env.NODE_ENV === "development";
 const serverPort = +process.env.PORT || 3000;
-const serverHost = process.env.APP_HOST || "http://localhost";
 exports.config = {
     apiOptions: {
-        // hostname: serverHost,
-        // hostname: serverHost,
         port: +(process.env.PORT || 3000),
         adminApiPath: "admin-api",
         shopApiPath: "shop-api",
@@ -170,22 +168,40 @@ exports.config = {
             adminUiConfig: {
                 ...(IS_DEV ? { apiPort: serverPort } : {}),
                 brand: "Nix Store",
-                // hideVendureBranding: true,
+                hideVendureBranding: true,
                 hideVersion: true,
-                defaultLanguage: core_1.LanguageCode.en,
+                defaultLanguage: core_1.LanguageCode.es,
                 availableLanguages: [core_1.LanguageCode.es, core_1.LanguageCode.en],
             },
         }),
     ],
 };
 function compileAdminUi() {
-    console.log("IS_DEV", IS_DEV);
     if (!IS_DEV) {
         return {
             path: path_1.default.join(__dirname, "../admin-ui/dist"),
         };
     }
     return {
-        path: path_1.default.join(__dirname, "../admin-ui"),
+        ...(0, compiler_1.compileUiExtensions)({
+            outputPath: IS_DEV ? path_1.default.join(__dirname, "../admin-ui") : path_1.default.join(__dirname, "../dist/admin-ui"),
+            devMode: IS_DEV ? true : false,
+            //   ngCompilerPath: path.join(__dirname, "./node_modules/.bin/ng"),
+            extensions: [
+                lote_plugin_1.LotesPlugin.ui,
+                (0, compiler_1.setBranding)({
+                    // The small logo appears in the top left of the screen
+                    smallLogoPath: path_1.default.join(__dirname, "../images/nix-logo-sm.png"),
+                    // The large logo is used on the login page
+                    largeLogoPath: path_1.default.join(__dirname, "../images/nix-logo.png"),
+                    faviconPath: path_1.default.join(__dirname, "../images/favicon.ico"),
+                }),
+                {
+                    translations: {
+                        es: path_1.default.join(__dirname, "translations/es.json"),
+                    },
+                },
+            ],
+        }),
     };
 }
