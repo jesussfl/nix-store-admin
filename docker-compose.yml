@@ -1,61 +1,164 @@
-version: "3"
+version: "3.8"
+
 services:
+  # Main application server
   server:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     ports:
-      - 3000:3000
-    command: ["yarn", "run", "start:server"]
+      - "3000:3000"
+    command: ["yarn", "run", "dev:server"]
     volumes:
-      - /usr/src/app
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+      - uploads:/usr/src/app/static
     environment:
+      APP_ENV: development
+      NODE_ENV: development
       DB_HOST: database
       DB_PORT: 5432
       DB_NAME: vendure
       DB_USERNAME: postgres
       DB_PASSWORD: password
+      DB_SYNCHRONIZE: "true"
+      DB_SCHEMA: public
+      COOKIE_SECRET: dev-cookie-secret-key
+      SUPERADMIN_USERNAME: admin
+      SUPERADMIN_PASSWORD: admin123
+      PORT: 3000
+      ASSET_UPLOAD_DIR: /usr/src/app/static/assets
+      GRAPHQL_SCHEMA_URL: http://localhost:3000/admin-api
+    depends_on:
+      - database
+    networks:
+      - vendure-network
+
+  # Background worker
   worker:
     build:
       context: .
-      dockerfile: Dockerfile
-    command: ["yarn", "run", "start:worker"]
+      dockerfile: Dockerfile.dev
+    command: ["yarn", "run", "dev:worker"]
     volumes:
-      - /usr/src/app
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+      - uploads:/usr/src/app/static
     environment:
+      APP_ENV: development
+      NODE_ENV: development
       DB_HOST: database
       DB_PORT: 5432
       DB_NAME: vendure
       DB_USERNAME: postgres
       DB_PASSWORD: password
+      DB_SYNCHRONIZE: true
+      DB_SCHEMA: public
+      COOKIE_SECRET: dev-cookie-secret-key
+      SUPERADMIN_USERNAME: admin
+      SUPERADMIN_PASSWORD: admin123
+      ASSET_UPLOAD_DIR: /usr/src/app/static/assets
+      GRAPHQL_SCHEMA_URL: http://localhost:3000/admin-api
+    depends_on:
+      - database
+    networks:
+      - vendure-network
+
+  # PostgreSQL database
   database:
-    image: postgres
+    image: postgres:15-alpine
+    restart: unless-stopped
     volumes:
-      - /var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
     ports:
-      - 5432:5432
+      - "5432:5432"
     environment:
-      POSTGRES_PASSWORD: password
       POSTGRES_DB: vendure
-#   elasticsearch:
-#     image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
-#     container_name: elasticsearch-vendure
-#     environment:
-#       - discovery.type=single-node
-#       - bootstrap.memory_lock=true
-#       - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
-#     ulimits:
-#       memlock:
-#         soft: -1
-#         hard: -1
-#     volumes:
-#       - esdata:/usr/share/elasticsearch/data
-#     ports:
-#       - 9200:9200
-#     networks:
-#       - esnet
-# volumes:
-#   esdata:
-#     driver: local
-# networks:
-#   esnet:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+    networks:
+      - vendure-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d vendure"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching and session storage
+  # redis:
+  #   image: redis:7-alpine
+  #   restart: unless-stopped
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis_data:/data
+  #   networks:
+  #     - vendure-network
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 10s
+  #     timeout: 3s
+  #     retries: 3
+
+  # # Elasticsearch for search functionality
+  # elasticsearch:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+  #   container_name: elasticsearch-vendure
+  #   restart: unless-stopped
+  #   environment:
+  #     - discovery.type=single-node
+  #     - bootstrap.memory_lock=true
+  #     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+  #     - xpack.security.enabled=false
+  #     - xpack.security.enrollment.enabled=false
+  #   ulimits:
+  #     memlock:
+  #       soft: -1
+  #       hard: -1
+  #   volumes:
+  #     - elasticsearch_data:/usr/share/elasticsearch/data
+  #   ports:
+  #     - "9200:9200"
+  #     - "9300:9300"
+  #   networks:
+  #     - vendure-network
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 5
+
+  # pgAdmin for database management (optional)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@vendure.io
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    ports:
+      - "8080:80"
+    depends_on:
+      - database
+    networks:
+      - vendure-network
+
+volumes:
+  postgres_data:
+    driver: local
+  # redis_data:
+  #   driver: local
+  # elasticsearch_data:
+  #   driver: local
+  pgadmin_data:
+    driver: local
+  uploads:
+    driver: local
+
+networks:
+  vendure-network:
+    driver: bridge

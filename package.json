@@ -12,7 +12,17 @@
     "copy": "npx copyfiles -u 1 'admin-ui/dist/**/*' dist",
     "build": "cross-env NODE_ENV=production tsc && yarn copy",
     "build:admin": "rimraf admin-ui && npx ts-node src/compile-admin-ui.ts",
-    "codegen": "graphql-codegen --config codegen.ts"
+    "codegen": "graphql-codegen --config codegen.ts",
+    "docker:dev": "docker-compose up -d",
+    "docker:dev:logs": "docker-compose logs -f",
+    "docker:dev:stop": "docker-compose down",
+    "docker:dev:build": "docker-compose build",
+    "docker:dev:restart": "docker-compose restart",
+    "docker:dev:clean": "docker-compose down -v && docker system prune -f",
+    "docker:prod": "docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d",
+    "docker:prod:stop": "docker-compose -f docker-compose.yml -f docker-compose.prod.yml down",
+    "docker:shell": "docker-compose exec server sh",
+    "docker:db": "docker-compose exec database psql -U postgres -d vendure"
   },
   "dependencies": {
     "@elastic/elasticsearch": "^8.15.0",

@@ -1,0 +1,36 @@
+FROM node:20-alpine
+
+# Install dumb-init for proper signal handling
+RUN apk add --no-cache dumb-init
+
+# Create app directory
+WORKDIR /usr/src/app
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S vendure -u 1001 -G nodejs
+
+# Copy package files
+COPY package.json yarn.lock ./
+
+# Install dependencies
+RUN yarn install --frozen-lockfile && yarn cache clean
+
+# Copy source code
+COPY . .
+
+# Create necessary directories and set permissions
+RUN mkdir -p static/assets static/email && \
+    chown -R vendure:nodejs /usr/src/app
+
+# Switch to non-root user
+USER vendure
+
+# Expose port
+EXPOSE 3000
+
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["dumb-init", "--"]
+
+# Default command (can be overridden in docker-compose)
+CMD ["yarn", "run", "dev"] 
