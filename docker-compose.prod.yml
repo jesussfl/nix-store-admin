@@ -1,0 +1,23 @@
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: nix-store-server-prod
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    ports:
+      - 3000:3000
+      - 3002:3002
+    command: ["yarn", "start:server"]
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: nix-store-worker-prod
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    command: ["yarn", "start:worker"]

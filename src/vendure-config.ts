@@ -29,6 +29,7 @@ import "./config";
 
 const IS_DEV = process.env.NODE_ENV === "development";
 const serverPort = +process.env.PORT || 3000;
+const appHost = (process.env.APP_HOST || `http://localhost:${serverPort}`).replace(/\/$/, "");
 export const config: VendureConfig = {
   apiOptions: {
     port: +(process.env.PORT || 3000),
@@ -72,7 +73,7 @@ export const config: VendureConfig = {
     // See the README.md "Migrations" section for an explanation of
     // the `synchronize` and `migrations` options.
     synchronize: process.env.DB_SYNCHRONIZE === "true",
-    migrations: [path.join(__dirname, "./src/migrations/*.+(js|ts)")],
+    migrations: [path.join(__dirname, "./migrations/*.+(js|ts)")],
     logging: false,
     database: process.env.DB_NAME,
     schema: process.env.DB_SCHEMA,
@@ -150,31 +151,43 @@ export const config: VendureConfig = {
     AssetServerPlugin.init({
       route: "assets",
       assetUploadDir: process.env.ASSET_UPLOAD_DIR || path.join(__dirname, "../static/assets"),
-      // For local dev, the correct value for assetUrlPrefix should
-      // be guessed correctly, but for production it will usually need
-      // to be set manually to match your production url.
-      assetUrlPrefix: IS_DEV ? undefined : "https://nix-store-admin-production.up.railway.app/assets/",
+      assetUrlPrefix: IS_DEV ? undefined : `${appHost}/assets/`,
     }),
     DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),
     DefaultSearchPlugin.init({ bufferUpdates: false, indexStockStatus: true }),
-    EmailPlugin.init({
-      devMode: true,
-      outputPath: path.join(__dirname, "../static/email/test-emails"),
-      route: "mailbox",
-      handlers: defaultEmailHandlers,
-      templateLoader: new FileBasedTemplateLoader(path.join(__dirname, "../static/email/templates")),
-      globalTemplateVars: {
-        // The following variables will change depending on your storefront implementation.
-        // Here we are assuming a storefront running at http://localhost:8080.
-        fromAddress: '"example" <noreply@example.com>',
-        verifyEmailAddressUrl: "http://localhost:8080/verify",
-        passwordResetUrl: "http://localhost:8080/password-reset",
-        changeEmailAddressUrl: "http://localhost:8080/verify-email-address-change",
-      },
-    }),
+    EmailPlugin.init(
+      IS_DEV
+        ? {
+            devMode: true,
+            outputPath: path.join(__dirname, "../static/email/test-emails"),
+            route: "mailbox",
+            handlers: defaultEmailHandlers,
+            templateLoader: new FileBasedTemplateLoader(path.join(__dirname, "../static/email/templates")),
+            globalTemplateVars: {
+              fromAddress: '"example" <noreply@example.com>',
+              verifyEmailAddressUrl: `${appHost}/verify`,
+              passwordResetUrl: `${appHost}/password-reset`,
+              changeEmailAddressUrl: `${appHost}/verify-email-address-change`,
+            },
+          }
+        : {
+            transport: {
+              type: "none",
+            },
+            handlers: defaultEmailHandlers,
+            templateLoader: new FileBasedTemplateLoader(path.join(__dirname, "../static/email/templates")),
+            globalTemplateVars: {
+              fromAddress: '"example" <noreply@example.com>',
+              verifyEmailAddressUrl: `${appHost}/verify`,
+              passwordResetUrl: `${appHost}/password-reset`,
+              changeEmailAddressUrl: `${appHost}/verify-email-address-change`,
+            },
+          }
+    ),
     AdminUiPlugin.init({
       route: "admin",
       port: serverPort + 2,
+      ...(IS_DEV ? { hostname: "127.0.0.1" } : {}),
       app: compileAdminUi(),
       adminUiConfig: {
         ...(IS_DEV ? { apiPort: serverPort } : {}),
@@ -199,6 +212,8 @@ function compileAdminUi() {
     ...compileUiExtensions({
       outputPath: IS_DEV ? path.join(__dirname, "../admin-ui") : path.join(__dirname, "../dist/admin-ui"),
       devMode: IS_DEV ? true : false,
+      watchPort: 4200,
+      additionalProcessArguments: IS_DEV ? [["--host", "0.0.0.0"]] : undefined,
       //   ngCompilerPath: path.join(__dirname, "./node_modules/.bin/ng"),
       extensions: [
         LotesPlugin.ui,

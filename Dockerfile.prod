@@ -25,4 +25,4 @@ COPY --from=build /usr/src/app/static ./dist/static
 
 EXPOSE 3000 3002
 
-CMD ["yarn", "start"]
+CMD ["yarn", "start:server"]

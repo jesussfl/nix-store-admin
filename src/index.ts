@@ -5,9 +5,16 @@ import { populateOnFirstRun } from "./populate";
 
 // Mostrar mensaje informativo sobre el entorno actual
 console.log(`Running server in ${process.env.NODE_ENV} mode`);
+const shouldRunMigrations = process.env.DB_SYNCHRONIZE !== "true";
 
 populateOnFirstRun(config)
-  .then(() => runMigrations(config))
+  .then(() => {
+    if (!shouldRunMigrations) {
+      console.log("Skipping migrations because DB_SYNCHRONIZE=true");
+      return;
+    }
+    return runMigrations(config);
+  })
   .then(() => bootstrap(config))
   .then((app) => {
     // For "lite" deployments with limited resources, we can run the job queue

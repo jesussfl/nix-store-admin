@@ -23,6 +23,37 @@ npm run dev
 will start the Vendure server and [worker](https://www.vendure.io/docs/developer-guide/vendure-worker/) processes from
 the `src` directory.
 
+### Docker development
+
+To start the full local development stack with Docker:
+
+```bash
+yarn docker:dev
+```
+
+This runs Docker Compose in watch mode, so source changes are synced into the running containers automatically.
+
+This starts:
+
+- Vendure server on `http://localhost:3000`
+- Vendure Admin UI on `http://localhost:3002`
+- Postgres on `localhost:5432`
+
+Docker Compose reads [`.env.development`](./.env.development) and overrides `DB_HOST` to use the `database`
+container, so the same env file still works for non-Docker local development too.
+
+To stop and remove the development containers and volumes:
+
+```bash
+yarn docker:dev:down
+```
+
+If you want to run the same dev stack without file watch mode:
+
+```bash
+yarn docker:dev:plain
+```
+
 ## Build
 
 ```
@@ -49,35 +80,17 @@ the server & worker processes.
 
 ### Using Docker
 
-We've included a sample [Dockerfile](./Dockerfile) which you can build with the following command:
+For production, use [Dockerfile.prod](./Dockerfile.prod):
 
 ```
-docker build -t vendure .
+docker build -f Dockerfile.prod -t vendure .
 ```
 
-This builds an image and tags it with the name "vendure". We can then run it with:
+Or start the production compose stack with:
 
 ```
-# Run the server
-docker run -dp 3000:3000 -e "DB_HOST=host.docker.internal" --name vendure-server vendure npm run start:server
-
-# Run the worker
-docker run -dp 3000:3000 -e "DB_HOST=host.docker.internal" --name vendure-worker vendure npm run start:worker
+yarn docker:prod
 ```
-
-Here is a breakdown of the command used above:
-
-- `docker run` - run the image we created with `docker build`
-- `-dp 3000:3000` - the `-d` flag means to run in "detached" mode, so it runs in the background and does not take
-control of your terminal. `-p 3000:3000` means to expose port 3000 of the container (which is what Vendure listens
-on by default) as port 3000 on your host machine.
-- `-e "DB_HOST=host.docker.internal"` - the `-e` option allows you to define environment variables. In this case we
-are setting the `DB_HOST` to point to a special DNS name that is created by Docker desktop which points to the IP of
-the host machine. Note that `host.docker.internal` only exists in a Docker Desktop environment and thus should only be
-used in development.
-- `--name vendure-server` - we give the container a human-readable name.
-- `vendure` - we are referencing the tag we set up during the build.
-- `npm run start:server` - this last part is the actual command that should be run inside the container.
 
 ### Docker compose
 
