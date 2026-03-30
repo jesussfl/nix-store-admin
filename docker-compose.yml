@@ -1,5 +1,6 @@
 services:
   server:
+    image: nix-store-admin-dev
     build:
       context: .
       dockerfile: Dockerfile.dev
@@ -43,6 +44,7 @@ services:
         - action: rebuild
           path: ./yarn.lock
   worker:
+    image: nix-store-admin-dev
     build:
       context: .
       dockerfile: Dockerfile.dev

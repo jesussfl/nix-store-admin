@@ -1,4 +1,4 @@
-import { compileUiExtensions, setBranding } from "@vendure/ui-devkit/compiler";
+import { compileUiExtensions } from "@vendure/ui-devkit/compiler";
 import * as path from "path";
 import { LotesPlugin } from "./plugins/lotes-plugin/lote.plugin";
 const IS_DEV = process.env.NODE_ENV === "development";
@@ -8,13 +8,19 @@ compileUiExtensions({
   //   ngCompilerPath: path.join(__dirname, "./node_modules/.bin/ng"),
   extensions: [
     LotesPlugin.ui,
-    setBranding({
-      // The small logo appears in the top left of the screen
-      smallLogoPath: path.join(__dirname, "../images/nix-logo-sm.png"),
-      // The large logo is used on the login page
-      largeLogoPath: path.join(__dirname, "../images/nix-logo.png"),
-      faviconPath: path.join(__dirname, "../images/favicon.ico"),
-    }),
+    {
+      staticAssets: [
+        {
+          path: path.join(__dirname, "../images/nix-logo-sm.png"),
+          rename: "logo-top.webp",
+        },
+        {
+          path: path.join(__dirname, "../images/nix-logo.png"),
+          rename: "logo-login.webp",
+        },
+        path.join(__dirname, "../images/favicon.ico"),
+      ],
+    },
     {
       translations: {
         es: path.join(__dirname, "translations/es.json"),

@@ -1,9 +1,11 @@
+# syntax=docker/dockerfile:1.7
 FROM node:20-bookworm-slim
 
 WORKDIR /usr/src/app
 
 COPY package.json yarn.lock ./
-RUN yarn install --non-interactive
+RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
+    yarn install --non-interactive
 
 COPY . .
 
