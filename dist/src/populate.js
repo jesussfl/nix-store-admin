@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.populateOnFirstRun = void 0;
+exports.populateOnFirstRun = populateOnFirstRun;
 const cli_1 = require("@vendure/core/cli");
 const core_1 = require("@vendure/core");
 const typeorm_1 = require("typeorm");
@@ -39,7 +39,6 @@ async function populateOnFirstRun(config) {
         return;
     }
 }
-exports.populateOnFirstRun = populateOnFirstRun;
 function resolveProjectPath(relativePath) {
     const candidates = [
         path_1.default.resolve(process.cwd(), relativePath),

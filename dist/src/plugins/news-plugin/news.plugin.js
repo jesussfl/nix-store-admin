@@ -39,35 +39,36 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LotesPlugin = void 0;
+exports.NewsPlugin = void 0;
 const core_1 = require("@vendure/core");
 const path = __importStar(require("path"));
 const api_extensions_1 = require("./api/api-extensions");
-const lote_admin_resolver_1 = require("./api/lote-admin.resolver");
-const lote_entity_1 = require("./entities/lote.entity");
-const lote_service_1 = require("./services/lote.service");
-let LotesPlugin = class LotesPlugin {
+const news_admin_resolver_1 = require("./api/news-admin.resolver");
+const news_shop_resolver_1 = require("./api/news-shop.resolver");
+const storefront_news_entity_1 = require("./entities/storefront-news.entity");
+const storefront_news_service_1 = require("./services/storefront-news.service");
+let NewsPlugin = class NewsPlugin {
 };
-exports.LotesPlugin = LotesPlugin;
-LotesPlugin.ui = {
-    id: "lotes-ui",
+exports.NewsPlugin = NewsPlugin;
+NewsPlugin.ui = {
+    id: "storefront-news-ui",
     extensionPath: path.join(__dirname, "ui"),
-    routes: [{ route: "lotes", filePath: "routes.ts" }],
+    routes: [{ route: "storefront-news", filePath: "routes.ts" }],
     providers: ["providers.ts"],
 };
-exports.LotesPlugin = LotesPlugin = __decorate([
+exports.NewsPlugin = NewsPlugin = __decorate([
     (0, core_1.VendurePlugin)({
         imports: [core_1.PluginCommonModule],
-        exports: [lote_service_1.LoteService],
-        entities: [lote_entity_1.Lote],
-        providers: [lote_service_1.LoteService],
+        entities: [storefront_news_entity_1.StorefrontNews],
+        providers: [storefront_news_service_1.StorefrontNewsService],
+        exports: [storefront_news_service_1.StorefrontNewsService],
         adminApiExtensions: {
             schema: api_extensions_1.adminApiExtensions,
-            resolvers: [lote_admin_resolver_1.LoteAdminResolver],
+            resolvers: [news_admin_resolver_1.StorefrontNewsAdminResolver],
         },
         shopApiExtensions: {
-            schema: api_extensions_1.apiExtensions,
-            resolvers: [],
+            schema: api_extensions_1.shopApiExtensions,
+            resolvers: [news_shop_resolver_1.StorefrontNewsShopResolver],
         },
     })
-], LotesPlugin);
+], NewsPlugin);

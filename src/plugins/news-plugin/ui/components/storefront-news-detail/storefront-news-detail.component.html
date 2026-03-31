@@ -1,0 +1,86 @@
+<vdr-page-block>
+  <vdr-action-bar>
+    <vdr-ab-left></vdr-ab-left>
+    <vdr-ab-right>
+      <button
+        class="button primary"
+        *ngIf="isNew$ | async; else updateOrDeleteButtons"
+        (click)="create()"
+        [disabled]="detailForm.pristine || detailForm.invalid"
+      >
+        {{ "common.create" | translate }}
+      </button>
+      <ng-template #updateOrDeleteButtons>
+        <button class="button primary" (click)="update()" [disabled]="detailForm.pristine || detailForm.invalid">
+          {{ "common.update" | translate }}
+        </button>
+        <button class="button danger" (click)="delete()">
+          {{ "common.delete" | translate }}
+        </button>
+      </ng-template>
+    </vdr-ab-right>
+  </vdr-action-bar>
+</vdr-page-block>
+
+<form class="form" [formGroup]="detailForm">
+  <vdr-page-detail-layout>
+    <vdr-page-detail-sidebar>
+      <vdr-card *ngIf="entity$ | async as entity">
+        <vdr-page-entity-info [entity]="entity"></vdr-page-entity-info>
+      </vdr-card>
+
+      <vdr-card title="Estado">
+        <vdr-form-field label="Visible en storefront" for="isPublished">
+          <input id="isPublished" type="checkbox" formControlName="isPublished" />
+        </vdr-form-field>
+        <vdr-form-field label="Orden" for="sortOrder">
+          <input id="sortOrder" type="number" formControlName="sortOrder" />
+        </vdr-form-field>
+      </vdr-card>
+    </vdr-page-detail-sidebar>
+
+    <vdr-page-block>
+      <vdr-card title="Contenido">
+        <div class="form-grid">
+          <vdr-form-field label="Titulo" for="title">
+            <input id="title" type="text" formControlName="title" />
+          </vdr-form-field>
+
+          <vdr-form-field label="Resumen" for="summary">
+            <textarea id="summary" rows="4" formControlName="summary"></textarea>
+          </vdr-form-field>
+
+          <vdr-form-field label="Texto del boton" for="ctaText">
+            <input id="ctaText" type="text" formControlName="ctaText" />
+          </vdr-form-field>
+
+          <vdr-form-field label="Enlace del boton" for="ctaLink">
+            <input id="ctaLink" type="url" formControlName="ctaLink" />
+          </vdr-form-field>
+        </div>
+
+        <vdr-form-field label="Imagen">
+          <vdr-assets
+            [assets]="selectedAsset ? [selectedAsset] : []"
+            [featuredAsset]="selectedAsset"
+            [multiSelect]="false"
+            (change)="onAssetChange($event)"
+          />
+        </vdr-form-field>
+      </vdr-card>
+
+      <vdr-card *ngIf="selectedAsset?.preview" title="Vista previa">
+        <div class="news-preview">
+          <img class="news-preview__image" [src]="selectedAsset?.preview || ''" [alt]="detailForm.value.title || 'preview'" />
+          <div class="news-preview__body">
+            <h3>{{ detailForm.value.title }}</h3>
+            <p>{{ detailForm.value.summary }}</p>
+            <a *ngIf="detailForm.value.ctaText" class="button secondary" [href]="detailForm.value.ctaLink || '#'" target="_blank" rel="noreferrer">
+              {{ detailForm.value.ctaText }}
+            </a>
+          </div>
+        </div>
+      </vdr-card>
+    </vdr-page-block>
+  </vdr-page-detail-layout>
+</form>

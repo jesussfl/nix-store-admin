@@ -23,6 +23,7 @@ import { PartialPaymentPlugin } from "./plugins/partial-payment/partial-payment.
 import { LotesPlugin } from "./plugins/lotes-plugin/lote.plugin";
 import { Lote } from "./plugins/lotes-plugin/entities/lote.entity";
 import { StockCheckPlugin } from "./plugins/stock-check-plugin/stock-check.plugin";
+import { NewsPlugin } from "./plugins/news-plugin/news.plugin";
 // import { NationalShippingPlugin } from "./plugins/national-shipping/national-shipping.plugin";
 import "./config";
 
@@ -154,6 +155,7 @@ export const config: VendureConfig = {
     PartialPaymentPlugin,
     LotesPlugin,
     StockCheckPlugin,
+    NewsPlugin,
 
     AssetServerPlugin.init({
       route: "assets",
@@ -225,6 +227,7 @@ function compileAdminUi() {
       //   ngCompilerPath: path.join(__dirname, "./node_modules/.bin/ng"),
       extensions: [
         LotesPlugin.ui,
+        NewsPlugin.ui,
         {
           staticAssets: [
             {

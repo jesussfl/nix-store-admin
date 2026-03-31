@@ -19,6 +19,7 @@ const partial_payment_plugin_1 = require("./plugins/partial-payment/partial-paym
 const lote_plugin_1 = require("./plugins/lotes-plugin/lote.plugin");
 const lote_entity_1 = require("./plugins/lotes-plugin/entities/lote.entity");
 const stock_check_plugin_1 = require("./plugins/stock-check-plugin/stock-check.plugin");
+const news_plugin_1 = require("./plugins/news-plugin/news.plugin");
 // import { NationalShippingPlugin } from "./plugins/national-shipping/national-shipping.plugin";
 require("./config");
 const IS_DEV = process.env.NODE_ENV === "development";
@@ -145,6 +146,7 @@ exports.config = {
         partial_payment_plugin_1.PartialPaymentPlugin,
         lote_plugin_1.LotesPlugin,
         stock_check_plugin_1.StockCheckPlugin,
+        news_plugin_1.NewsPlugin,
         asset_server_plugin_1.AssetServerPlugin.init({
             route: "assets",
             assetUploadDir: process.env.ASSET_UPLOAD_DIR || path_1.default.join(__dirname, "../static/assets"),
@@ -198,7 +200,7 @@ exports.config = {
 function compileAdminUi() {
     if (!IS_DEV) {
         return {
-            path: path_1.default.join(__dirname, "../admin-ui/dist"),
+            path: path_1.default.join(__dirname, "../admin-ui/dist/browser"),
         };
     }
     const { compileUiExtensions } = require("@vendure/ui-devkit/compiler");
@@ -211,6 +213,7 @@ function compileAdminUi() {
             //   ngCompilerPath: path.join(__dirname, "./node_modules/.bin/ng"),
             extensions: [
                 lote_plugin_1.LotesPlugin.ui,
+                news_plugin_1.NewsPlugin.ui,
                 {
                     staticAssets: [
                         {
