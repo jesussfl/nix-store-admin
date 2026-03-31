@@ -22,6 +22,9 @@ RUN yarn install --production=true --non-interactive && yarn cache clean
 
 COPY --from=build /usr/src/app/dist ./dist
 COPY --from=build /usr/src/app/static ./dist/static
+COPY --from=build /usr/src/app/initial-data.json ./initial-data.json
+COPY --from=build /usr/src/app/products.csv ./products.csv
+COPY --from=build /usr/src/app/images ./images
 
 EXPOSE 3000 3002
 
