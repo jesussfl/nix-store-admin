@@ -21,6 +21,7 @@ COPY package.json yarn.lock ./
 RUN yarn install --production=true --non-interactive && yarn cache clean
 
 COPY --from=build /usr/src/app/dist ./dist
+COPY --from=build /usr/src/app/dist/admin-ui ./dist/admin-ui
 COPY --from=build /usr/src/app/static ./dist/static
 COPY --from=build /usr/src/app/initial-data.json ./initial-data.json
 COPY --from=build /usr/src/app/products.csv ./products.csv
