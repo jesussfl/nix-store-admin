@@ -212,7 +212,7 @@ export const config: VendureConfig = {
 function compileAdminUi() {
   if (!IS_DEV) {
     return {
-      path: path.join(__dirname, "../admin-ui/dist"),
+      path: path.join(__dirname, "../admin-ui/dist/browser"),
     };
   }
   const { compileUiExtensions } = require("@vendure/ui-devkit/compiler") as typeof import("@vendure/ui-devkit/compiler");

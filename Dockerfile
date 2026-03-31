@@ -11,7 +11,7 @@ ENV NODE_ENV=production
 
 RUN yarn build:admin
 RUN yarn build
-RUN test -f /usr/src/app/dist/admin-ui/dist/vendure-ui-config.json
+RUN test -f /usr/src/app/dist/admin-ui/dist/browser/vendure-ui-config.json
 
 FROM node:20-bookworm-slim AS runtime
 
