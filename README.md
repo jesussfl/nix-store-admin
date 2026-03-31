@@ -54,6 +54,33 @@ If you want to run the same dev stack without file watch mode:
 yarn docker:dev:plain
 ```
 
+### k6 resource testing
+
+This repo includes a `k6` setup for basic Vendure smoke/load checks.
+
+Start the app stack first:
+
+```bash
+yarn docker:dev
+```
+
+Then run the bundled scenario from the repo root:
+
+```bash
+yarn k6:resources
+```
+
+That script runs `grafana/k6` through Docker Compose and targets the internal service URL
+`http://server:3000` by default.
+
+If your Vendure server is running on the host machine instead of inside Docker, use:
+
+```bash
+yarn k6:resources:local
+```
+
+You can customize the target by setting `K6_BASE_URL` before running the command.
+
 ## Build
 
 ```

@@ -118,6 +118,17 @@ services:
       - 9200:9200
     networks:
       - esnet
+  k6:
+    image: grafana/k6:latest
+    profiles:
+      - tools
+    working_dir: /scripts
+    depends_on:
+      - server
+    environment:
+      K6_BASE_URL: ${K6_BASE_URL:-http://server:3000}
+    volumes:
+      - ./k6:/scripts
 volumes:
   postgres_data:
   esdata:

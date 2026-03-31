@@ -20,7 +20,6 @@ COPY package.json yarn.lock ./
 RUN yarn install --production=true --non-interactive && yarn cache clean
 
 COPY --from=build /usr/src/app/dist ./dist
-COPY --from=build /usr/src/app/admin-ui/dist ./dist/admin-ui/dist
 COPY --from=build /usr/src/app/static ./dist/static
 
 EXPOSE 3000 3002
