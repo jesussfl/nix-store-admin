@@ -7,6 +7,7 @@ exports.populateOnFirstRun = void 0;
 const cli_1 = require("@vendure/core/cli");
 const core_1 = require("@vendure/core");
 const typeorm_1 = require("typeorm");
+const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 /**
  * @description
@@ -18,13 +19,16 @@ async function populateOnFirstRun(config) {
     const dbTablesAlreadyExist = await tablesExist(config);
     if (!dbTablesAlreadyExist) {
         console.log(`No Vendure tables found in DB. Populating database...`);
+        const initialDataPath = resolveProjectPath("initial-data.json");
+        const productsCsvPath = resolveProjectPath("products.csv");
+        const imagesDirPath = resolveProjectPath("images");
         return (0, cli_1.populate)(() => (0, core_1.bootstrap)({
             ...config,
             importExportOptions: {
-                importAssetsDir: path_1.default.join(require.resolve("../products.csv"), "../images"),
+                importAssetsDir: imagesDirPath,
             },
             dbConnectionOptions: { ...config.dbConnectionOptions, synchronize: true },
-        }), require("../initial-data.json"), require.resolve("../products.csv"))
+        }), require(initialDataPath), productsCsvPath)
             .then((app) => app.close())
             .catch((err) => {
             console.log(err);
@@ -36,6 +40,18 @@ async function populateOnFirstRun(config) {
     }
 }
 exports.populateOnFirstRun = populateOnFirstRun;
+function resolveProjectPath(relativePath) {
+    const candidates = [
+        path_1.default.resolve(process.cwd(), relativePath),
+        path_1.default.resolve(__dirname, "..", relativePath),
+        path_1.default.resolve(__dirname, "..", "..", relativePath),
+    ];
+    const resolvedPath = candidates.find((candidate) => fs_1.default.existsSync(candidate));
+    if (!resolvedPath) {
+        throw new Error(`Could not find "${relativePath}". Checked: ${candidates.join(", ")}`);
+    }
+    return resolvedPath;
+}
 async function tablesExist(config) {
     const connection = await (0, typeorm_1.createConnection)(config.dbConnectionOptions);
     const result = await connection.query(`

@@ -6,8 +6,15 @@ const vendure_config_1 = require("./vendure-config");
 const populate_1 = require("./populate");
 // Mostrar mensaje informativo sobre el entorno actual
 console.log(`Running server in ${process.env.NODE_ENV} mode`);
+const shouldRunMigrations = process.env.DB_SYNCHRONIZE !== "true";
 (0, populate_1.populateOnFirstRun)(vendure_config_1.config)
-    .then(() => (0, core_1.runMigrations)(vendure_config_1.config))
+    .then(() => {
+    if (!shouldRunMigrations) {
+        console.log("Skipping migrations because DB_SYNCHRONIZE=true");
+        return;
+    }
+    return (0, core_1.runMigrations)(vendure_config_1.config);
+})
     .then(() => (0, core_1.bootstrap)(vendure_config_1.config))
     .then((app) => {
     var _a;
@@ -17,5 +24,6 @@ console.log(`Running server in ${process.env.NODE_ENV} mode`);
     }
 })
     .catch((err) => {
-    console.log(err);
+    console.error(err);
+    process.exit(1);
 });

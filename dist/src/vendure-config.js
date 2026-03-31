@@ -2,6 +2,7 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = void 0;
 const core_1 = require("@vendure/core");
@@ -17,12 +18,13 @@ const payment_process_1 = require("./plugins/partial-payment/payment-process");
 const partial_payment_plugin_1 = require("./plugins/partial-payment/partial-payment.plugin");
 const lote_plugin_1 = require("./plugins/lotes-plugin/lote.plugin");
 const lote_entity_1 = require("./plugins/lotes-plugin/entities/lote.entity");
-const compiler_1 = require("@vendure/ui-devkit/compiler");
 const stock_check_plugin_1 = require("./plugins/stock-check-plugin/stock-check.plugin");
 // import { NationalShippingPlugin } from "./plugins/national-shipping/national-shipping.plugin";
 require("./config");
 const IS_DEV = process.env.NODE_ENV === "development";
 const serverPort = +process.env.PORT || 3000;
+const appHost = (process.env.APP_HOST || `http://localhost:${serverPort}`).replace(/\/$/, "");
+const dbSslEnabled = ((_a = process.env.DB_SSL) === null || _a === void 0 ? void 0 : _a.toLowerCase()) === "true" || !IS_DEV;
 exports.config = {
     apiOptions: {
         port: +(process.env.PORT || 3000),
@@ -64,7 +66,7 @@ exports.config = {
         // See the README.md "Migrations" section for an explanation of
         // the `synchronize` and `migrations` options.
         synchronize: process.env.DB_SYNCHRONIZE === "true",
-        migrations: [path_1.default.join(__dirname, "./src/migrations/*.+(js|ts)")],
+        migrations: [path_1.default.join(__dirname, "./migrations/*.+(js|ts)")],
         logging: false,
         database: process.env.DB_NAME,
         schema: process.env.DB_SCHEMA,
@@ -72,6 +74,13 @@ exports.config = {
         port: +process.env.DB_PORT,
         username: process.env.DB_USERNAME,
         password: process.env.DB_PASSWORD,
+        ...(dbSslEnabled
+            ? {
+                ssl: {
+                    rejectUnauthorized: ((_b = process.env.DB_SSL_REJECT_UNAUTHORIZED) === null || _b === void 0 ? void 0 : _b.toLowerCase()) === "true",
+                },
+            }
+            : {}),
     },
     shippingOptions: {
         shippingCalculators: [core_1.defaultShippingCalculator, external_shipping_calculator_1.externalShippingCalculator],
@@ -139,31 +148,41 @@ exports.config = {
         asset_server_plugin_1.AssetServerPlugin.init({
             route: "assets",
             assetUploadDir: process.env.ASSET_UPLOAD_DIR || path_1.default.join(__dirname, "../static/assets"),
-            // For local dev, the correct value for assetUrlPrefix should
-            // be guessed correctly, but for production it will usually need
-            // to be set manually to match your production url.
-            assetUrlPrefix: IS_DEV ? undefined : "https://nix-store-admin-production.up.railway.app/assets/",
+            assetUrlPrefix: IS_DEV ? undefined : `${appHost}/assets/`,
         }),
         core_1.DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),
         core_1.DefaultSearchPlugin.init({ bufferUpdates: false, indexStockStatus: true }),
-        email_plugin_1.EmailPlugin.init({
-            devMode: true,
-            outputPath: path_1.default.join(__dirname, "../static/email/test-emails"),
-            route: "mailbox",
-            handlers: email_plugin_1.defaultEmailHandlers,
-            templateLoader: new email_plugin_1.FileBasedTemplateLoader(path_1.default.join(__dirname, "../static/email/templates")),
-            globalTemplateVars: {
-                // The following variables will change depending on your storefront implementation.
-                // Here we are assuming a storefront running at http://localhost:8080.
-                fromAddress: '"example" <noreply@example.com>',
-                verifyEmailAddressUrl: "http://localhost:8080/verify",
-                passwordResetUrl: "http://localhost:8080/password-reset",
-                changeEmailAddressUrl: "http://localhost:8080/verify-email-address-change",
-            },
-        }),
+        email_plugin_1.EmailPlugin.init(IS_DEV
+            ? {
+                devMode: true,
+                outputPath: path_1.default.join(__dirname, "../static/email/test-emails"),
+                route: "mailbox",
+                handlers: email_plugin_1.defaultEmailHandlers,
+                templateLoader: new email_plugin_1.FileBasedTemplateLoader(path_1.default.join(__dirname, "../static/email/templates")),
+                globalTemplateVars: {
+                    fromAddress: '"example" <noreply@example.com>',
+                    verifyEmailAddressUrl: `${appHost}/verify`,
+                    passwordResetUrl: `${appHost}/password-reset`,
+                    changeEmailAddressUrl: `${appHost}/verify-email-address-change`,
+                },
+            }
+            : {
+                transport: {
+                    type: "none",
+                },
+                handlers: email_plugin_1.defaultEmailHandlers,
+                templateLoader: new email_plugin_1.FileBasedTemplateLoader(path_1.default.join(__dirname, "../static/email/templates")),
+                globalTemplateVars: {
+                    fromAddress: '"example" <noreply@example.com>',
+                    verifyEmailAddressUrl: `${appHost}/verify`,
+                    passwordResetUrl: `${appHost}/password-reset`,
+                    changeEmailAddressUrl: `${appHost}/verify-email-address-change`,
+                },
+            }),
         admin_ui_plugin_1.AdminUiPlugin.init({
             route: "admin",
             port: serverPort + 2,
+            ...(IS_DEV ? { hostname: "127.0.0.1" } : {}),
             app: compileAdminUi(),
             adminUiConfig: {
                 ...(IS_DEV ? { apiPort: serverPort } : {}),
@@ -182,20 +201,30 @@ function compileAdminUi() {
             path: path_1.default.join(__dirname, "../admin-ui/dist"),
         };
     }
+    const { compileUiExtensions } = require("@vendure/ui-devkit/compiler");
     return {
-        ...(0, compiler_1.compileUiExtensions)({
+        ...compileUiExtensions({
             outputPath: IS_DEV ? path_1.default.join(__dirname, "../admin-ui") : path_1.default.join(__dirname, "../dist/admin-ui"),
             devMode: IS_DEV ? true : false,
+            watchPort: 4200,
+            additionalProcessArguments: IS_DEV ? [["--host", "0.0.0.0"]] : undefined,
             //   ngCompilerPath: path.join(__dirname, "./node_modules/.bin/ng"),
             extensions: [
                 lote_plugin_1.LotesPlugin.ui,
-                (0, compiler_1.setBranding)({
-                    // The small logo appears in the top left of the screen
-                    smallLogoPath: path_1.default.join(__dirname, "../images/nix-logo-sm.png"),
-                    // The large logo is used on the login page
-                    largeLogoPath: path_1.default.join(__dirname, "../images/nix-logo.png"),
-                    faviconPath: path_1.default.join(__dirname, "../images/favicon.ico"),
-                }),
+                {
+                    staticAssets: [
+                        {
+                            path: path_1.default.join(__dirname, "../images/nix-logo-sm.png"),
+                            rename: "logo-top.webp",
+                        },
+                        {
+                            path: path_1.default.join(__dirname, "../images/nix-logo.png"),
+                            rename: "logo-login.webp",
+                        },
+                        // Keep the original filename to avoid copying the file onto itself in dev mode.
+                        path_1.default.join(__dirname, "../images/favicon.ico"),
+                    ],
+                },
                 {
                     translations: {
                         es: path_1.default.join(__dirname, "translations/es.json"),

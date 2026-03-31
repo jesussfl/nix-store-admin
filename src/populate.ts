@@ -1,6 +1,7 @@
 import { populate } from "@vendure/core/cli";
 import { bootstrap, VendureConfig } from "@vendure/core";
 import { createConnection } from "typeorm";
+import fs from "fs";
 import path from "path";
 
 /**
@@ -13,17 +14,21 @@ export async function populateOnFirstRun(config: VendureConfig) {
   const dbTablesAlreadyExist = await tablesExist(config);
   if (!dbTablesAlreadyExist) {
     console.log(`No Vendure tables found in DB. Populating database...`);
+    const initialDataPath = resolveProjectPath("initial-data.json");
+    const productsCsvPath = resolveProjectPath("products.csv");
+    const imagesDirPath = resolveProjectPath("images");
+
     return populate(
       () =>
         bootstrap({
           ...config,
           importExportOptions: {
-            importAssetsDir: path.join(require.resolve("../products.csv"), "../images"),
+            importAssetsDir: imagesDirPath,
           },
           dbConnectionOptions: { ...config.dbConnectionOptions, synchronize: true },
         }),
-      require("../initial-data.json"),
-      require.resolve("../products.csv")
+      require(initialDataPath),
+      productsCsvPath
     )
       .then((app) => app.close())
       .catch((err) => {
@@ -33,6 +38,23 @@ export async function populateOnFirstRun(config: VendureConfig) {
   } else {
     return;
   }
+}
+
+function resolveProjectPath(relativePath: string): string {
+  const candidates = [
+    path.resolve(process.cwd(), relativePath),
+    path.resolve(__dirname, "..", relativePath),
+    path.resolve(__dirname, "..", "..", relativePath),
+  ];
+
+  const resolvedPath = candidates.find((candidate) => fs.existsSync(candidate));
+  if (!resolvedPath) {
+    throw new Error(
+      `Could not find "${relativePath}". Checked: ${candidates.join(", ")}`
+    );
+  }
+
+  return resolvedPath;
 }
 
 async function tablesExist(config: VendureConfig) {
