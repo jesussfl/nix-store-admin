@@ -15,6 +15,7 @@ RUN yarn build
 FROM node:20-bookworm-slim AS runtime
 
 WORKDIR /usr/src/app
+ENV NODE_ENV=production
 
 COPY package.json yarn.lock ./
 RUN yarn install --production=true --non-interactive && yarn cache clean
@@ -24,4 +25,4 @@ COPY --from=build /usr/src/app/static ./dist/static
 
 EXPOSE 3000 3002
 
-CMD ["yarn", "start"]
+CMD ["yarn", "start:server"]
