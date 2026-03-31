@@ -29,6 +29,7 @@ import "./config";
 const IS_DEV = process.env.NODE_ENV === "development";
 const serverPort = +process.env.PORT || 3000;
 const appHost = (process.env.APP_HOST || `http://localhost:${serverPort}`).replace(/\/$/, "");
+const dbSslEnabled = process.env.DB_SSL?.toLowerCase() === "true" || !IS_DEV;
 export const config: VendureConfig = {
   apiOptions: {
     port: +(process.env.PORT || 3000),
@@ -80,6 +81,13 @@ export const config: VendureConfig = {
     port: +process.env.DB_PORT,
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
+    ...(dbSslEnabled
+      ? {
+          ssl: {
+            rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED?.toLowerCase() === "true",
+          },
+        }
+      : {}),
   },
 
   shippingOptions: {
