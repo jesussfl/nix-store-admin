@@ -1,5 +1,5 @@
 import { PluginCommonModule, VendurePlugin } from "@vendure/core";
-import { AdminUiExtension } from "@vendure/ui-devkit/compiler";
+import type { AdminUiExtension } from "@vendure/ui-devkit/compiler";
 import * as path from "path";
 import { adminApiExtensions, apiExtensions } from "./api/api-extensions";
 import { LoteAdminResolver } from "./api/lote-admin.resolver";

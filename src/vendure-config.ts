@@ -22,7 +22,6 @@ import { customPaymentProcess } from "./plugins/partial-payment/payment-process"
 import { PartialPaymentPlugin } from "./plugins/partial-payment/partial-payment.plugin";
 import { LotesPlugin } from "./plugins/lotes-plugin/lote.plugin";
 import { Lote } from "./plugins/lotes-plugin/entities/lote.entity";
-import { compileUiExtensions } from "@vendure/ui-devkit/compiler";
 import { StockCheckPlugin } from "./plugins/stock-check-plugin/stock-check.plugin";
 // import { NationalShippingPlugin } from "./plugins/national-shipping/national-shipping.plugin";
 import "./config";
@@ -208,6 +207,7 @@ function compileAdminUi() {
       path: path.join(__dirname, "../admin-ui/dist"),
     };
   }
+  const { compileUiExtensions } = require("@vendure/ui-devkit/compiler") as typeof import("@vendure/ui-devkit/compiler");
   return {
     ...compileUiExtensions({
       outputPath: IS_DEV ? path.join(__dirname, "../admin-ui") : path.join(__dirname, "../dist/admin-ui"),
