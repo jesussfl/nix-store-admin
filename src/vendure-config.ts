@@ -31,14 +31,25 @@ const IS_DEV = process.env.NODE_ENV === "development";
 const serverPort = +process.env.PORT || 3000;
 const appHost = (process.env.APP_HOST || `http://localhost:${serverPort}`).replace(/\/$/, "");
 const dbSslEnabled = process.env.DB_SSL?.toLowerCase() === "true" || !IS_DEV;
+
 export const config: VendureConfig = {
   apiOptions: {
     port: +(process.env.PORT || 3000),
     adminApiPath: "admin-api",
     shopApiPath: "shop-api",
+    cors: {
+      origin: [
+        // Production frontend
+        "https://www.nixstoreve.com",
+        "https://nixstoreve.com",
+        // Local development
+        "http://localhost:3001",
+        "http://localhost:3000",
+      ],
+      credentials: true,
+    },
     // The following options are useful in development mode,
-    // but are best turned off for production for security
-    // reasons.
+    // but are best turned off for production for security reasons.
     ...(IS_DEV
       ? {
           adminApiPlayground: {
@@ -64,6 +75,7 @@ export const config: VendureConfig = {
       secret: process.env.COOKIE_SECRET,
     },
   },
+
   logger: new DefaultLogger({
     level: LogLevel.Debug,
   }),
@@ -94,6 +106,7 @@ export const config: VendureConfig = {
   shippingOptions: {
     shippingCalculators: [defaultShippingCalculator, externalShippingCalculator],
   },
+
   orderOptions: {
     process: [defaultOrderProcess, customOrderProcess],
     orderPlacedStrategy: new MyOrderPlacedStrategy(),
@@ -103,6 +116,7 @@ export const config: VendureConfig = {
     process: [defaultPaymentProcess, customPaymentProcess],
     paymentMethodHandlers: [dummyPaymentHandler, partialPaymentHandler],
   },
+
   // When adding or altering custom field definitions, the database will
   // need to be updated. See the "Migrations" section in README.md.
   customFields: {
@@ -130,7 +144,7 @@ export const config: VendureConfig = {
         type: "string",
         label: [
           { languageCode: LanguageCode.en, value: "Office code" },
-          { languageCode: LanguageCode.es, value: "Código de oficina" },
+          { languageCode: LanguageCode.es, value: "Código de oficina" },
         ],
       },
       {
@@ -151,6 +165,7 @@ export const config: VendureConfig = {
       },
     ],
   },
+
   plugins: [
     PartialPaymentPlugin,
     LotesPlugin,
@@ -202,7 +217,6 @@ export const config: VendureConfig = {
         ...(IS_DEV ? { apiPort: serverPort } : {}),
         brand: "Nix Store",
         hideVendureBranding: true,
-
         hideVersion: true,
         defaultLanguage: LanguageCode.es,
         availableLanguages: [LanguageCode.es, LanguageCode.en],
