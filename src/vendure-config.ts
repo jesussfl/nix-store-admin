@@ -24,6 +24,8 @@ import { LotesPlugin } from "./plugins/lotes-plugin/lote.plugin";
 import { Lote } from "./plugins/lotes-plugin/entities/lote.entity";
 import { StockCheckPlugin } from "./plugins/stock-check-plugin/stock-check.plugin";
 import { NewsPlugin } from "./plugins/news-plugin/news.plugin";
+import { CatalogSearchPlugin } from "./plugins/catalog-search-plugin/catalog-search.plugin";
+import { CatalogPostgresSearchStrategy } from "./plugins/catalog-search-plugin/search/catalog-postgres-search-strategy";
 // import { NationalShippingPlugin } from "./plugins/national-shipping/national-shipping.plugin";
 import "./config";
 
@@ -171,6 +173,7 @@ export const config: VendureConfig = {
     LotesPlugin,
     StockCheckPlugin,
     NewsPlugin,
+    CatalogSearchPlugin,
 
     AssetServerPlugin.init({
       route: "assets",
@@ -178,7 +181,11 @@ export const config: VendureConfig = {
       assetUrlPrefix: IS_DEV ? undefined : `${appHost}/assets/`,
     }),
     DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),
-    DefaultSearchPlugin.init({ bufferUpdates: false, indexStockStatus: true }),
+    DefaultSearchPlugin.init({
+      bufferUpdates: false,
+      indexStockStatus: true,
+      searchStrategy: new CatalogPostgresSearchStrategy(),
+    }),
     EmailPlugin.init(
       IS_DEV
         ? {
