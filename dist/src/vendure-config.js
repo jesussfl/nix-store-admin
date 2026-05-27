@@ -20,6 +20,8 @@ const lote_plugin_1 = require("./plugins/lotes-plugin/lote.plugin");
 const lote_entity_1 = require("./plugins/lotes-plugin/entities/lote.entity");
 const stock_check_plugin_1 = require("./plugins/stock-check-plugin/stock-check.plugin");
 const news_plugin_1 = require("./plugins/news-plugin/news.plugin");
+const catalog_search_plugin_1 = require("./plugins/catalog-search-plugin/catalog-search.plugin");
+const catalog_postgres_search_strategy_1 = require("./plugins/catalog-search-plugin/search/catalog-postgres-search-strategy");
 // import { NationalShippingPlugin } from "./plugins/national-shipping/national-shipping.plugin";
 require("./config");
 const IS_DEV = process.env.NODE_ENV === "development";
@@ -31,9 +33,19 @@ exports.config = {
         port: +(process.env.PORT || 3000),
         adminApiPath: "admin-api",
         shopApiPath: "shop-api",
+        cors: {
+            origin: [
+                // Production frontend
+                "https://www.nixstoreve.com",
+                "https://nixstoreve.com",
+                // Local development
+                "http://localhost:3001",
+                "http://localhost:3000",
+            ],
+            credentials: true,
+        },
         // The following options are useful in development mode,
-        // but are best turned off for production for security
-        // reasons.
+        // but are best turned off for production for security reasons.
         ...(IS_DEV
             ? {
                 adminApiPlayground: {
@@ -66,7 +78,7 @@ exports.config = {
         logger: "debug",
         // See the README.md "Migrations" section for an explanation of
         // the `synchronize` and `migrations` options.
-        synchronize: process.env.DB_SYNCHRONIZE === "true",
+        synchronize: false,
         migrations: [path_1.default.join(__dirname, "./migrations/*.+(js|ts)")],
         logging: false,
         database: process.env.DB_NAME,
@@ -121,7 +133,7 @@ exports.config = {
                 type: "string",
                 label: [
                     { languageCode: core_1.LanguageCode.en, value: "Office code" },
-                    { languageCode: core_1.LanguageCode.es, value: "Código de oficina" },
+                    { languageCode: core_1.LanguageCode.es, value: "Código de oficina" },
                 ],
             },
             {
@@ -147,13 +159,18 @@ exports.config = {
         lote_plugin_1.LotesPlugin,
         stock_check_plugin_1.StockCheckPlugin,
         news_plugin_1.NewsPlugin,
+        catalog_search_plugin_1.CatalogSearchPlugin,
         asset_server_plugin_1.AssetServerPlugin.init({
             route: "assets",
             assetUploadDir: process.env.ASSET_UPLOAD_DIR || path_1.default.join(__dirname, "../static/assets"),
             assetUrlPrefix: IS_DEV ? undefined : `${appHost}/assets/`,
         }),
         core_1.DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),
-        core_1.DefaultSearchPlugin.init({ bufferUpdates: false, indexStockStatus: true }),
+        core_1.DefaultSearchPlugin.init({
+            bufferUpdates: false,
+            indexStockStatus: true,
+            searchStrategy: new catalog_postgres_search_strategy_1.CatalogPostgresSearchStrategy(),
+        }),
         email_plugin_1.EmailPlugin.init(IS_DEV
             ? {
                 devMode: true,

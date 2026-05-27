@@ -219,6 +219,8 @@ export class StorefrontNewsDetailComponent extends TypedBaseDetailComponent<type
           height: 0,
           focalPoint: null,
           tags: [],
+          languageCode: _languageCode,
+          translations: [],
         } as AdminAsset)
       : undefined;
     this.detailForm.markAsPristine();

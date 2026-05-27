@@ -7,11 +7,11 @@ import path from "path";
 
 // Mostrar mensaje informativo sobre el entorno actual
 console.log(`Running server in ${process.env.NODE_ENV} mode`);
-const shouldRunMigrations = process.env.DB_SYNCHRONIZE !== "true";
+const shouldRunMigrations = process.env.DB_RUN_MIGRATIONS !== "false";
 const migrationsDir = path.join(__dirname, "migrations");
 
 console.log(`DB schema: ${process.env.DB_SCHEMA || "public"}`);
-console.log(`DB synchronize: ${process.env.DB_SYNCHRONIZE}`);
+console.log("DB synchronize: false");
 console.log(`Migrations enabled: ${shouldRunMigrations}`);
 console.log(`Migration glob: ${path.join(__dirname, "./migrations/*.+(js|ts)")}`);
 console.log(`Migrations dir exists: ${fs.existsSync(migrationsDir)}`);
@@ -22,7 +22,7 @@ if (fs.existsSync(migrationsDir)) {
 populateOnFirstRun(config)
   .then(() => {
     if (!shouldRunMigrations) {
-      console.log("Skipping migrations because DB_SYNCHRONIZE=true");
+      console.log("Skipping migrations because DB_RUN_MIGRATIONS=false");
       return;
     }
     console.log("Starting Vendure migrations...");
