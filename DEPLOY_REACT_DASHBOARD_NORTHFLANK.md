@@ -216,13 +216,17 @@ For production, attach persistent storage for:
 static/assets
 ```
 
-Then point Vendure at that mounted path:
+Then point Vendure at that mounted path. For example, if Northflank mounts the
+volume here:
 
 ```text
 ASSET_UPLOAD_DIR=/usr/src/app/static/assets
 ```
 
-If Northflank mounts a volume somewhere else, set `ASSET_UPLOAD_DIR` to that mount path.
+If Northflank mounts a volume somewhere else, set `ASSET_UPLOAD_DIR` to that
+mount path. If `ASSET_UPLOAD_DIR` is unset, this project defaults to
+`/usr/src/app/dist/static/assets` in the production image, which is not persistent
+unless you mount storage there.
 
 Also set `APP_HOST` to the public HTTPS origin so production asset URLs are generated correctly:
 
