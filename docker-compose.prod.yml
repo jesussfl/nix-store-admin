@@ -9,7 +9,6 @@ services:
       - .env.production
     ports:
       - 3000:3000
-      - 3002:3002
     command: ["yarn", "start:server"]
 
   worker:

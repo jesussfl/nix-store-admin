@@ -23,7 +23,25 @@ export const adminApiExtensions = gql`
     description: String
   }
 
-  input LoteListOptions
+  input LoteFilterParameter {
+    name: StringOperators
+    description: StringOperators
+  }
+
+  input LoteSortParameter {
+    id: SortOrder
+    createdAt: SortOrder
+    updatedAt: SortOrder
+    name: SortOrder
+    description: SortOrder
+  }
+
+  input LoteListOptions {
+    skip: Int
+    take: Int
+    sort: LoteSortParameter
+    filter: LoteFilterParameter
+  }
 
   extend type Query {
     allLotes(options: LoteListOptions): LoteList!

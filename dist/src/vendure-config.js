@@ -8,7 +8,7 @@ exports.config = void 0;
 const core_1 = require("@vendure/core");
 const email_plugin_1 = require("@vendure/email-plugin");
 const asset_server_plugin_1 = require("@vendure/asset-server-plugin");
-const admin_ui_plugin_1 = require("@vendure/admin-ui-plugin");
+const plugin_1 = require("@vendure/dashboard/plugin");
 const path_1 = __importDefault(require("path"));
 const external_shipping_calculator_1 = require("./shipping-methods/external-shipping-calculator");
 const partial_payment_handler_1 = require("./plugins/partial-payment/partial-payment-handler");
@@ -198,59 +198,9 @@ exports.config = {
                     changeEmailAddressUrl: `${appHost}/verify-email-address-change`,
                 },
             }),
-        admin_ui_plugin_1.AdminUiPlugin.init({
-            route: "admin",
-            port: serverPort + 2,
-            ...(IS_DEV ? { hostname: "127.0.0.1" } : {}),
-            app: compileAdminUi(),
-            adminUiConfig: {
-                ...(IS_DEV ? { apiPort: serverPort } : {}),
-                brand: "Nix Store",
-                hideVendureBranding: true,
-                hideVersion: true,
-                defaultLanguage: core_1.LanguageCode.es,
-                availableLanguages: [core_1.LanguageCode.es, core_1.LanguageCode.en],
-            },
+        plugin_1.DashboardPlugin.init({
+            route: "dashboard",
+            appDir: path_1.default.join(__dirname, "../dist/dashboard"),
         }),
     ],
 };
-function compileAdminUi() {
-    if (!IS_DEV) {
-        return {
-            path: path_1.default.join(__dirname, "../admin-ui/dist/browser"),
-        };
-    }
-    const { compileUiExtensions } = require("@vendure/ui-devkit/compiler");
-    return {
-        ...compileUiExtensions({
-            outputPath: IS_DEV ? path_1.default.join(__dirname, "../admin-ui") : path_1.default.join(__dirname, "../dist/admin-ui"),
-            devMode: IS_DEV ? true : false,
-            watchPort: 4200,
-            additionalProcessArguments: IS_DEV ? [["--host", "0.0.0.0"]] : undefined,
-            //   ngCompilerPath: path.join(__dirname, "./node_modules/.bin/ng"),
-            extensions: [
-                lote_plugin_1.LotesPlugin.ui,
-                news_plugin_1.NewsPlugin.ui,
-                {
-                    staticAssets: [
-                        {
-                            path: path_1.default.join(__dirname, "../images/nix-logo-sm.png"),
-                            rename: "logo-top.webp",
-                        },
-                        {
-                            path: path_1.default.join(__dirname, "../images/nix-logo.png"),
-                            rename: "logo-login.webp",
-                        },
-                        // Keep the original filename to avoid copying the file onto itself in dev mode.
-                        path_1.default.join(__dirname, "../images/favicon.ico"),
-                    ],
-                },
-                {
-                    translations: {
-                        es: path_1.default.join(__dirname, "translations/es.json"),
-                    },
-                },
-            ],
-        }),
-    };
-}

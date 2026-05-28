@@ -1,6 +1,4 @@
 import { PluginCommonModule, VendurePlugin } from "@vendure/core";
-import type { AdminUiExtension } from "@vendure/ui-devkit/compiler";
-import * as path from "path";
 
 import { adminApiExtensions, shopApiExtensions } from "./api/api-extensions";
 import { StorefrontNewsAdminResolver } from "./api/news-admin.resolver";
@@ -21,12 +19,6 @@ import { StorefrontNewsService } from "./services/storefront-news.service";
     schema: shopApiExtensions,
     resolvers: [StorefrontNewsShopResolver],
   },
+  dashboard: "./dashboard/index.tsx",
 })
-export class NewsPlugin {
-  static ui: AdminUiExtension = {
-    id: "storefront-news-ui",
-    extensionPath: path.join(__dirname, "ui"),
-    routes: [{ route: "storefront-news", filePath: "routes.ts" }],
-    providers: ["providers.ts"],
-  };
-}
+export class NewsPlugin {}

@@ -4,7 +4,7 @@ exports.AddStorefrontNews1743397200000 = void 0;
 class AddStorefrontNews1743397200000 {
     async up(queryRunner) {
         await queryRunner.query(`
-      CREATE TABLE "storefront_news" (
+      CREATE TABLE IF NOT EXISTS "storefront_news" (
         "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
         "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
         "id" SERIAL NOT NULL,
@@ -21,8 +21,8 @@ class AddStorefrontNews1743397200000 {
     `);
     }
     async down(queryRunner) {
-        await queryRunner.query(`ALTER TABLE "storefront_news" DROP CONSTRAINT "FK_storefront_news_asset"`);
-        await queryRunner.query(`DROP TABLE "storefront_news"`);
+        await queryRunner.query(`ALTER TABLE IF EXISTS "storefront_news" DROP CONSTRAINT IF EXISTS "FK_storefront_news_asset"`);
+        await queryRunner.query(`DROP TABLE IF EXISTS "storefront_news"`);
     }
 }
 exports.AddStorefrontNews1743397200000 = AddStorefrontNews1743397200000;
