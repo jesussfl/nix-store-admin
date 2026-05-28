@@ -13,9 +13,8 @@ services:
       - .env.development
     ports:
       - 3000:3000
-      - 3002:3002
-      - 4200:4200
-    command: ["yarn", "dev:server"]
+      - 5173:5173
+    command: ["yarn", "dev:server-dashboard"]
     environment:
       APP_ENV: development
       NODE_ENV: development
@@ -39,6 +38,12 @@ services:
         - action: sync+restart
           path: ./tsconfig.json
           target: /usr/src/app/tsconfig.json
+        - action: sync+restart
+          path: ./tsconfig.dashboard.json
+          target: /usr/src/app/tsconfig.dashboard.json
+        - action: sync+restart
+          path: ./vite.config.mts
+          target: /usr/src/app/vite.config.mts
         - action: rebuild
           path: ./package.json
         - action: rebuild
@@ -78,6 +83,12 @@ services:
         - action: sync+restart
           path: ./tsconfig.json
           target: /usr/src/app/tsconfig.json
+        - action: sync+restart
+          path: ./tsconfig.dashboard.json
+          target: /usr/src/app/tsconfig.dashboard.json
+        - action: sync+restart
+          path: ./vite.config.mts
+          target: /usr/src/app/vite.config.mts
         - action: rebuild
           path: ./package.json
         - action: rebuild
@@ -100,7 +111,7 @@ services:
       timeout: 5s
       retries: 10
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.1.0
     container_name: elasticsearch-vendure
     profiles:
       - elasticsearch

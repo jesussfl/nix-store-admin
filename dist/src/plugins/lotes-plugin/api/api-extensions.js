@@ -28,7 +28,25 @@ exports.adminApiExtensions = (0, graphql_tag_1.default) `
     description: String
   }
 
-  input LoteListOptions
+  input LoteFilterParameter {
+    name: StringOperators
+    description: StringOperators
+  }
+
+  input LoteSortParameter {
+    id: SortOrder
+    createdAt: SortOrder
+    updatedAt: SortOrder
+    name: SortOrder
+    description: SortOrder
+  }
+
+  input LoteListOptions {
+    skip: Int
+    take: Int
+    sort: LoteSortParameter
+    filter: LoteFilterParameter
+  }
 
   extend type Query {
     allLotes(options: LoteListOptions): LoteList!

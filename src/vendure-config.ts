@@ -12,7 +12,7 @@ import {
 } from "@vendure/core";
 import { defaultEmailHandlers, EmailPlugin, FileBasedTemplateLoader } from "@vendure/email-plugin";
 import { AssetServerPlugin } from "@vendure/asset-server-plugin";
-import { AdminUiPlugin } from "@vendure/admin-ui-plugin";
+import { DashboardPlugin } from "@vendure/dashboard/plugin";
 import path from "path";
 import { externalShippingCalculator } from "./shipping-methods/external-shipping-calculator";
 import { partialPaymentHandler } from "./plugins/partial-payment/partial-payment-handler";
@@ -87,7 +87,7 @@ export const config: VendureConfig = {
     logger: "debug",
     // See the README.md "Migrations" section for an explanation of
     // the `synchronize` and `migrations` options.
-    synchronize: process.env.DB_SYNCHRONIZE === "true",
+    synchronize: false,
     migrations: [path.join(__dirname, "./migrations/*.+(js|ts)")],
     logging: false,
     database: process.env.DB_NAME,
@@ -215,60 +215,9 @@ export const config: VendureConfig = {
             },
           }
     ),
-    AdminUiPlugin.init({
-      route: "admin",
-      port: serverPort + 2,
-      ...(IS_DEV ? { hostname: "127.0.0.1" } : {}),
-      app: compileAdminUi(),
-      adminUiConfig: {
-        ...(IS_DEV ? { apiPort: serverPort } : {}),
-        brand: "Nix Store",
-        hideVendureBranding: true,
-        hideVersion: true,
-        defaultLanguage: LanguageCode.es,
-        availableLanguages: [LanguageCode.es, LanguageCode.en],
-      },
+    DashboardPlugin.init({
+      route: "dashboard",
+      appDir: IS_DEV ? path.join(__dirname, "../dist/dashboard") : path.join(__dirname, "../dashboard"),
     }),
   ],
 };
-
-function compileAdminUi() {
-  if (!IS_DEV) {
-    return {
-      path: path.join(__dirname, "../admin-ui/dist/browser"),
-    };
-  }
-  const { compileUiExtensions } = require("@vendure/ui-devkit/compiler") as typeof import("@vendure/ui-devkit/compiler");
-  return {
-    ...compileUiExtensions({
-      outputPath: IS_DEV ? path.join(__dirname, "../admin-ui") : path.join(__dirname, "../dist/admin-ui"),
-      devMode: IS_DEV ? true : false,
-      watchPort: 4200,
-      additionalProcessArguments: IS_DEV ? [["--host", "0.0.0.0"]] : undefined,
-      //   ngCompilerPath: path.join(__dirname, "./node_modules/.bin/ng"),
-      extensions: [
-        LotesPlugin.ui,
-        NewsPlugin.ui,
-        {
-          staticAssets: [
-            {
-              path: path.join(__dirname, "../images/nix-logo-sm.png"),
-              rename: "logo-top.webp",
-            },
-            {
-              path: path.join(__dirname, "../images/nix-logo.png"),
-              rename: "logo-login.webp",
-            },
-            // Keep the original filename to avoid copying the file onto itself in dev mode.
-            path.join(__dirname, "../images/favicon.ico"),
-          ],
-        },
-        {
-          translations: {
-            es: path.join(__dirname, "translations/es.json"),
-          },
-        },
-      ],
-    }),
-  };
-}
