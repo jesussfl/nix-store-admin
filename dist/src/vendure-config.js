@@ -200,7 +200,7 @@ exports.config = {
             }),
         plugin_1.DashboardPlugin.init({
             route: "dashboard",
-            appDir: path_1.default.join(__dirname, "../dist/dashboard"),
+            appDir: IS_DEV ? path_1.default.join(__dirname, "../dist/dashboard") : path_1.default.join(__dirname, "../dashboard"),
         }),
     ],
 };

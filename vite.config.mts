@@ -11,10 +11,13 @@ export default defineConfig({
   plugins: [
     vendureDashboardPlugin({
       vendureConfigPath: pathToFileURL("./src/vendure-config.ts"),
-      api: {
-        host: "http://localhost",
-        port: Number(process.env.PORT ?? 3000),
-      },
+      api:
+        process.env.NODE_ENV === "production"
+          ? { host: "auto", port: "auto" }
+          : {
+              host: "http://localhost",
+              port: Number(process.env.PORT ?? 3000),
+            },
       gqlOutputPath: "./src/gql",
     }),
   ],
