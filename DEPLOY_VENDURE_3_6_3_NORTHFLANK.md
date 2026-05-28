@@ -51,7 +51,6 @@ admin-ui/
 
 ```bash
 yarn build
-yarn build:admin
 NODE_ENV=development yarn migration:run
 ```
 
@@ -124,7 +123,6 @@ Port: 3000
 
 ```bash
 yarn install --non-interactive
-yarn build:admin
 yarn build
 ```
 
@@ -172,7 +170,6 @@ After merge, Northflank should automatically build and deploy from `main`.
 Watch the Northflank build logs for:
 
 ```text
-yarn build:admin
 yarn build
 ```
 

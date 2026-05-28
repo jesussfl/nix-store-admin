@@ -36,8 +36,18 @@ Vendure serves that directory from `src/vendure-config.ts`:
 ```ts
 DashboardPlugin.init({
   route: "dashboard",
-  appDir: path.join(__dirname, "../dist/dashboard"),
+  appDir: IS_DEV
+    ? path.join(__dirname, "../dist/dashboard")
+    : path.join(__dirname, "../dashboard"),
 })
+```
+
+In production, `src/vendure-config.ts` is compiled to `dist/src/vendure-config.js`.
+That means `__dirname` is `dist/src`, so `../dashboard` resolves to the runtime
+directory copied by `Dockerfile.prod`:
+
+```text
+/usr/src/app/dist/dashboard
 ```
 
 ## Files To Commit
@@ -162,6 +172,13 @@ DB_SSL=true
 DB_SSL_REJECT_UNAUTHORIZED=false
 ```
 
+Recommended optional variables:
+
+```text
+DB_RUN_MIGRATIONS=true
+RUN_JOB_QUEUE_FROM_SERVER=false
+```
+
 If your production database requires verified CA certificates, use:
 
 ```text
@@ -187,6 +204,7 @@ DB_SYNCHRONIZE=true
 ```
 
 The project config already forces `synchronize: false`, which is the correct production behavior.
+`DB_SYNCHRONIZE` is not read by the current code path.
 
 ## Asset Storage
 
