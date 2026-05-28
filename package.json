@@ -22,6 +22,7 @@
     "docker:dev": "docker compose up --build --watch",
     "docker:dev:plain": "docker compose up --build",
     "docker:dev:down": "docker compose down -v",
+    "db:restore:local": "bash -lc 'docker compose stop server worker && trap \"docker compose start server worker >/dev/null 2>&1 || true\" EXIT && docker exec nix-store-db psql -U postgres -d postgres -c \"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '\\''vendure'\\'' AND pid <> pg_backend_pid();\" && docker exec nix-store-db dropdb -U postgres --if-exists vendure && docker exec nix-store-db createdb -U postgres vendure && gzip -cd backups/solid-yam-136-20260528-221146-6a18bda2ade6d49e25cb3752.postgresql.gz | sed -E \"/^SET transaction_timeout = /d; /^CREATE EXTENSION IF NOT EXISTS pg_stat_kcache /d; /^COMMENT ON EXTENSION pg_stat_kcache /d; s/^CREATE DATABASE \\\"nix-store-db\\\".*;/-- skipped source CREATE DATABASE/; s/^\\\\\\\\connect .*/\\\\\\\\connect -reuse-previous=on vendure/\" | docker exec -i nix-store-db psql -v ON_ERROR_STOP=1 -U postgres -d postgres'",
     "docker:prod": "docker compose -f docker-compose.prod.yml up --build -d",
     "docker:prod:down": "docker compose -f docker-compose.prod.yml down"
   },
