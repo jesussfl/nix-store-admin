@@ -14,6 +14,7 @@ const external_shipping_calculator_1 = require("./shipping-methods/external-ship
 const partial_payment_handler_1 = require("./plugins/partial-payment/partial-payment-handler");
 const order_process_1 = require("./plugins/partial-payment/order-process");
 const order_placed_strategy_1 = require("./plugins/partial-payment/order-placed-strategy");
+const stock_allocation_strategy_1 = require("./plugins/partial-payment/stock-allocation-strategy");
 const payment_process_1 = require("./plugins/partial-payment/payment-process");
 const partial_payment_plugin_1 = require("./plugins/partial-payment/partial-payment.plugin");
 const lote_plugin_1 = require("./plugins/lotes-plugin/lote.plugin");
@@ -101,6 +102,7 @@ exports.config = {
     orderOptions: {
         process: [core_1.defaultOrderProcess, order_process_1.customOrderProcess],
         orderPlacedStrategy: new order_placed_strategy_1.MyOrderPlacedStrategy(),
+        stockAllocationStrategy: new stock_allocation_strategy_1.PartialPaymentStockAllocationStrategy(),
     },
     paymentOptions: {
         process: [core_1.defaultPaymentProcess, payment_process_1.customPaymentProcess],
