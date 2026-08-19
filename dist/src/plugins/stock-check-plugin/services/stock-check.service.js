@@ -22,21 +22,28 @@ let StockCheckService = class StockCheckService {
      * Gets the current stock level for a product variant
      */
     async getCurrentStockLevel(ctx, variantId) {
+        var _a, _b;
         try {
             // Obtenemos el ProductVariant
             const variant = await this.productVariantService.findOne(ctx, variantId);
             if (!variant) {
                 throw new Error(`Product variant with ID ${variantId} not found`);
             }
-            // En Vendure, podemos obtener el nivel de stock actual así:
-            // Si el sistema usa multiple stock locations, obtenemos la suma total
+            // Saleable stock is stockOnHand MINUS stockAllocated, matching Vendure's
+            // own StockLocationStrategy.getAvailableStock(). Reporting raw stockOnHand
+            // would advertise units already reserved by orders that are placed but not
+            // yet fulfilled, letting the storefront oversell them.
             const stockLevel = await this.connection
                 .getRepository(ctx, "StockLevel")
                 .createQueryBuilder("stockLevel")
                 .where("stockLevel.productVariantId = :variantId", { variantId })
                 .select("SUM(stockLevel.stockOnHand)", "stockOnHand")
+                .addSelect("SUM(stockLevel.stockAllocated)", "stockAllocated")
                 .getRawOne();
-            return (stockLevel === null || stockLevel === void 0 ? void 0 : stockLevel.stockOnHand) || 0;
+            const onHand = Number((_a = stockLevel === null || stockLevel === void 0 ? void 0 : stockLevel.stockOnHand) !== null && _a !== void 0 ? _a : 0);
+            const allocated = Number((_b = stockLevel === null || stockLevel === void 0 ? void 0 : stockLevel.stockAllocated) !== null && _b !== void 0 ? _b : 0);
+            const saleable = onHand - allocated;
+            return Number.isFinite(saleable) ? Math.max(0, saleable) : 0;
         }
         catch (error) {
             console.error(`Error getting stock level for variant ${variantId}:`, error);
