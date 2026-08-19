@@ -21,16 +21,23 @@ export class StockCheckService {
         throw new Error(`Product variant with ID ${variantId} not found`);
       }
 
-      // En Vendure, podemos obtener el nivel de stock actual así:
-      // Si el sistema usa multiple stock locations, obtenemos la suma total
+      // Saleable stock is stockOnHand MINUS stockAllocated, matching Vendure's
+      // own StockLocationStrategy.getAvailableStock(). Reporting raw stockOnHand
+      // would advertise units already reserved by orders that are placed but not
+      // yet fulfilled, letting the storefront oversell them.
       const stockLevel = await this.connection
         .getRepository(ctx, "StockLevel")
         .createQueryBuilder("stockLevel")
         .where("stockLevel.productVariantId = :variantId", { variantId })
         .select("SUM(stockLevel.stockOnHand)", "stockOnHand")
+        .addSelect("SUM(stockLevel.stockAllocated)", "stockAllocated")
         .getRawOne();
 
-      return stockLevel?.stockOnHand || 0;
+      const onHand = Number(stockLevel?.stockOnHand ?? 0);
+      const allocated = Number(stockLevel?.stockAllocated ?? 0);
+      const saleable = onHand - allocated;
+
+      return Number.isFinite(saleable) ? Math.max(0, saleable) : 0;
     } catch (error) {
       console.error(`Error getting stock level for variant ${variantId}:`, error);
       return 0;
