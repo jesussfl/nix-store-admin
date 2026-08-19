@@ -52,6 +52,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Flags:
  *   --apply             Perform the writes. Without it nothing is written.
  *   --allow-negative    Permit results that drive stockOnHand below zero.
+ *   --skip-negative     Apply only the lines that stay >= 0, and report the rest.
  *   --receipt <path>    Where to write the receipt (default: ./backfill-receipt-<timestamp>.json).
  */
 const typeorm_1 = require("typeorm");
@@ -129,6 +130,7 @@ async function main() {
     const argv = process.argv.slice(2);
     const apply = argv.includes("--apply");
     const allowNegative = argv.includes("--allow-negative");
+    const skipNegative = argv.includes("--skip-negative");
     const revertIndex = argv.indexOf("--revert");
     const receiptIndex = argv.indexOf("--receipt");
     const dataSource = await buildDataSource().initialize();
@@ -199,12 +201,34 @@ async function main() {
                 console.log(`  order ${s.candidate.orderCode} line ${s.candidate.orderLineId}: ${s.reason}`);
             }
         }
-        const negatives = planned.filter(p => p.after < 0);
+        let negatives = planned.filter(p => p.after < 0);
+        // Going below zero usually means the variant was already corrected by hand,
+        // so replaying the Sale would double-count it. --skip-negative applies the
+        // provably safe lines and leaves the ambiguous ones for a human.
+        if (negatives.length && skipNegative && !allowNegative) {
+            const dropped = new Set(negatives.map(n => n.candidate.orderLineId));
+            for (let i = planned.length - 1; i >= 0; i--) {
+                if (dropped.has(planned[i].candidate.orderLineId)) {
+                    planned.splice(i, 1);
+                }
+            }
+            console.log(`\nSkipping ${negatives.length} line(s) that would go below zero:`);
+            for (const n of negatives) {
+                console.log(`  order ${n.candidate.orderCode} line ${n.candidate.orderLineId} variant ${n.candidate.productVariantId}: ` +
+                    `${n.before} - ${n.candidate.quantity} = ${n.after} — review this variant by hand`);
+            }
+            negatives = [];
+        }
         if (negatives.length && !allowNegative) {
             console.log(`\nABORT: ${negatives.length} line(s) would drive stockOnHand below zero.` +
                 `\nThat usually means stock was corrected by hand after the order shipped.` +
-                `\nReview those variants, then re-run with --allow-negative to proceed anyway.`);
+                `\nRe-run with --skip-negative to correct the other lines and leave these alone,` +
+                `\nor --allow-negative to force them through.`);
             process.exitCode = 1;
+            return;
+        }
+        if (planned.length === 0) {
+            console.log("\nNothing left to correct after skips.");
             return;
         }
         if (!apply) {
