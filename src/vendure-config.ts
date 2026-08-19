@@ -18,6 +18,7 @@ import { externalShippingCalculator } from "./shipping-methods/external-shipping
 import { partialPaymentHandler } from "./plugins/partial-payment/partial-payment-handler";
 import { customOrderProcess } from "./plugins/partial-payment/order-process";
 import { MyOrderPlacedStrategy } from "./plugins/partial-payment/order-placed-strategy";
+import { PartialPaymentStockAllocationStrategy } from "./plugins/partial-payment/stock-allocation-strategy";
 import { customPaymentProcess } from "./plugins/partial-payment/payment-process";
 import { PartialPaymentPlugin } from "./plugins/partial-payment/partial-payment.plugin";
 import { LotesPlugin } from "./plugins/lotes-plugin/lote.plugin";
@@ -112,6 +113,7 @@ export const config: VendureConfig = {
   orderOptions: {
     process: [defaultOrderProcess, customOrderProcess],
     orderPlacedStrategy: new MyOrderPlacedStrategy(),
+    stockAllocationStrategy: new PartialPaymentStockAllocationStrategy(),
   },
 
   paymentOptions: {
